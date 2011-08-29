@@ -3,16 +3,20 @@ evenOdd = "even"
 
 Bindings =
   init: ->
-    @bindEditables()
     @mapDataValsToIds()
+    @bindEditables()
   bindEditables: ->
        $(".editable").bind("click", ->
             input = $(this).find("input")
             select = $(this).find("select")
-            $(select).show()
-            input.show()
-            input.focus()
-            $(this).find("label").hide()
+            if $(input)
+              $(input).show()
+              $(input).focus()
+              $(input).parent().find("label").hide()
+            if $(select)
+              $(select).show()
+              $(select).focus()
+              $(select).parent().find("label").hide()
        )
        inputs = $(".editable").find("input")
        selects = $(".editable").find("select")
@@ -47,6 +51,7 @@ Bindings =
     jQuery.each(data, (i, val) ->
         jQuery.each($(container).find("table"), (s, ele) ->
             obj = data
+            row_count = $(ele).find("tr").length
             if $(ele).attr("data-val")
                 property = $(ele).attr("data-val").split(".")
                 for i in [0..property.length - 1]
@@ -58,79 +63,139 @@ Bindings =
                     else evenOdd = "odd"
                 row = "<tr class='" + evenOdd + "'>"
                 jQuery.each($(ele).find("th"), (k, eles) ->
+                    data_options = []
                     try
+                        try
+                          data_options = ($(eles).attr("data-options").split(" "))
+                        catch ex
+                        
                         values = eles
                         try
                           property = $(eles).attr("data-val").split(".")
                         catch ex
+                        unless property?
+                          return null
                         nested = object
                         for i in [0..property.length - 1]
                             nested = nested[property[i]]
                         if $(eles).attr("data-val")
-                            if $(eles).attr("data-name")
-                                input_name = $(eles).attr("data-name")
-                            else if property.length > 1 
-                                input_name = property.join("_")
-                            else
-                                input_name = property
-                            if $(eles).attr("data-id")
-                                input_id = $(eles).attr("data-id")
-                            else
-                                input_id = property.join("_")
-                                input_id = "#{input_id}_#{row_count}"
-                            try
-                                if $(eles).attr("data-type") == "array"
-                                    input_name = "#{input_name}[#{row_count}]"
-                            catch ex
-                            try
-                              if $(eles).attr("data-input") == "select"
-                                input_type = "select"
-                            catch ex
-                              input_type = "text"
-                            row += "<td class='#{$(eles).attr('data-class')}'>"
-                            row += nested
+                            input_name = Bindings.getInputName(eles, property)
+                            input_id =  Bindings.getInputId(eles, property, row_count)
+                            input_name = "#{input_name}[#{row_count}]"
+                            input_type = Bindings.getInputType(eles)
+                            change = Bindings.getOnChange()
+                            classes = Bindings.setColumnClasses(data_options)
+                            row += "<td class='#{$(eles).attr('data-class')} #{classes}'>"
+                            row += "<label>#{nested}</label>"
                             if input_type == "select"
-                              select_options = data
-                              property = $(eles).attr("data-options").split(".")
-                              for i in [0..property.length - 1]
-                                  select_options = select_options[property[i]]
-                              input_id = property.join("_")
-                              row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden'>"
-                              jQuery.each($(select_options), (i, val)->
-                                row += "<option value='#{val.value}'"
-                                if val.text == nested
-                                  row += "selected='selected'"
-                                row += ">#{val.text}</option>"
-                              )
-                              row += "</select>"
+                              row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested)
                             else
-                              row += "<input name='#{input_name}' id='#{input_id}' value='#{nested}' class='hidden #{input_name}'/>"
-                            row += "</td>"
+                              row += Bindings.addTableInput(input_name, input_id, nested, property, change)
                         if $(eles).attr("data-href")
-                            row += "<td>"
-                            row += "<a href='#{$(eles).attr('data-href')}' onclick='#{$(eles).attr('data-click')}'><span class='#{$(eles).attr('data-class')}'> </span></a>"
-                            row += "</td>"
+                            row += Bindings.addLink(eles)
                     catch ex
-                        row += "<td></td>"
+                        row += Bindings.addEmptyColumn
                         
                 )
                 row += "</tr>"
                 row_count++
                 $(ele).find("tbody").append(row)
+                Bindings.bindEditables()
             )
         )
     )
+    
+  getOnChange: (eles) ->
+    change = "" 
+    try
+      if $(eles).attr("data-change")
+        change = $(eles).attr("data-change")
+      else
+        change = ""
+    catch ex
+    return change
+  getInputType: (eles) ->
+    input_type = undefined
+    try
+      if $(eles).attr("data-input") == "select"
+          input_type = "select"
+    catch ex
+      input_type = "text"
+    return input_type
+  
+  getInputName: (eles, property) ->
+    if $(eles).attr("data-name")
+        input_name = $(eles).attr("data-name")
+    else if property.length > 1 
+        input_name = property.join("_")
+    else
+        input_name = property
+  
+  getInputId: (eles, property, row_count) ->
+    if $(eles).attr("data-id")
+        input_id = $(eles).attr("data-id")
+    else
+        input_id = property.join("_")
+        input_id = "#{input_id}_#{row_count}"
+  
+  addTableLink: (eles) ->
+    row = "<td>"
+    row += "<a href='#{$(eles).attr('data-href')}' onclick='#{$(eles).attr('data-click')}'><span class='#{$(eles).attr('data-class')}'> </span></a>"
+    row += "</td>"
+    return row
      
+  addTableInput: (name, id, nested, property, change) ->
+    unless nested?
+      return null
+    row  = "<input name='#{name}' id='#{id}' value='#{nested}' class='hidden #{property.join("_")} editable' onchange='#{change}'/>"
+    row += "</td>"
+    return row
+    
+  addEmptyColumn: ->
+    row = "<td></td>"
+    return row
+    
+  addTableSelect: (input_name, row_count, val, eles, property, data, nested) ->
+    row = ""
+    select_options = data
+    property = $(eles).attr("data-select").split(".")
+    unless property?
+      return null
+    for i in [0..property.length - 1]
+        select_options = select_options[property[i]]
+    input_id = property.join("_")
+    row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden'>"
+    jQuery.each($(select_options), (i, val)->
+      row += "<option value='#{val.value}'"
+      if val.text == nested
+        row += "selected='selected'"
+      row += ">#{val.text}</option>"
+    )
+    row += "</select>"
+    row += "</td>"
+    return row
+    
+  setColumnClasses: (options) ->
+    classes = []
+    jQuery.each(options, (i, val) ->
+      if val == "inline-edit"
+        classes.push("editable")
+      else
+        return ""
+    )
+    return classes.join(" ")
+    
   bindData: (data, container) -> 
-   @bindTables(data, container)
-   jQuery.each(data, (i, val) ->
-       jQuery.each($(container).children().find("select"), (i, ele) ->
-              obj = data
-              if $(ele).attr("data-val") 
-                property = $(ele).attr("data-val").split(".")
-                for i in [0..property.length - 1]
-                    obj = obj[property[i]]
-                $(ele).val(obj)
+       @bindTables(data, container)
+       jQuery.each(data, (i, val) ->
+           jQuery.each($(container).children().find("select"), (i, ele) ->
+                  obj = data
+                  if $(ele).attr("data-val") 
+                    property = $(ele).attr("data-val").split(".")
+                    for i in [0..property.length - 1]
+                        obj = obj[property[i]]
+                    $(ele).val(obj)
+           )
        )
       
        jQuery.each($(container).children().find("input:checkbox"), (i, ele) ->
@@ -142,7 +207,7 @@ Bindings =
                 $(ele).prop("checked", (obj))
        )
       
-       jQuery.each($(".text-data"), (i, ele) ->
+       jQuery.each($("#{container} .text-data"), (i, ele) ->
                   obj = data
                   if $(ele).attr("data-val") 
                     property = $(ele).attr("data-val").split(".")
@@ -150,5 +215,4 @@ Bindings =
                           obj = obj[property[i]]
                     $(ele).val(obj)
        )
-   )
-  
+       @bindEditables()

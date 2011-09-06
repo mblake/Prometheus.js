@@ -1,6 +1,5 @@
 valIdPairs = {}
 evenOdd = "even"
-
 Bindings =
   init: ->
     @mapDataValsToIds()
@@ -32,6 +31,12 @@ Bindings =
             $(this).hide()
             $(label).show()
        )
+       
+  nullCheck: (val)->
+    if val == null
+      return ""
+    else
+      return val
   mapDataValsToIds: ->
      #TODO Optimize, Genericizea
      pairs = {}
@@ -78,6 +83,8 @@ Bindings =
                         nested = object
                         for i in [0..property.length - 1]
                             nested = nested[property[i]]
+                        isNull = nested?
+                        nested = "" unless isNull
                         if $(eles).attr("data-val")
                             input_name = Bindings.getInputName(eles, property)
                             input_id =  Bindings.getInputId(eles, property, row_count)
@@ -92,7 +99,7 @@ Bindings =
                             else
                               row += Bindings.addTableInput(input_name, input_id, nested, property, change)
                         if $(eles).attr("data-href")
-                            row += Bindings.addLink(eles)
+                            row += Bindings.addTableLink(eles)
                     catch ex
                         row += Bindings.addEmptyColumn
                         
@@ -117,8 +124,8 @@ Bindings =
   getInputType: (eles) ->
     input_type = undefined
     try
-      if $(eles).attr("data-input") == "select"
-          input_type = "select"
+      if $(eles).attr("data-input") 
+          input_type = $(eles).attr("data-input").toString()
     catch ex
       input_type = "text"
     return input_type
@@ -129,7 +136,7 @@ Bindings =
     else if property.length > 1 
         input_name = property.join("_")
     else
-        input_name = property
+        input_name = property.toString()
   
   getInputId: (eles, property, row_count) ->
     if $(eles).attr("data-id")
@@ -205,6 +212,7 @@ Bindings =
                 for i in [0..property.length - 1]
                   obj = obj[property[i]]
                 $(ele).prop("checked", (obj))
+                
        )
       
        jQuery.each($("#{container} .text-data"), (i, ele) ->
@@ -214,5 +222,6 @@ Bindings =
                     for i in [0..property.length - 1]
                           obj = obj[property[i]]
                     $(ele).val(obj)
+                    
        )
        @bindEditables()

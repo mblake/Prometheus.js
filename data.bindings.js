@@ -40,6 +40,13 @@ Bindings = {
       return $(label).show();
     });
   },
+  nullCheck: function(val) {
+    if (val === null) {
+      return "";
+    } else {
+      return val;
+    }
+  },
   mapDataValsToIds: function() {
     var pairs;
     pairs = {};
@@ -82,7 +89,7 @@ Bindings = {
           }
           row = "<tr class='" + evenOdd + "'>";
           jQuery.each($(ele).find("th"), function(k, eles) {
-            var change, classes, data_options, i, input_id, input_name, input_type, nested, values, _ref2;
+            var change, classes, data_options, i, input_id, input_name, input_type, isNull, nested, values, _ref2;
             data_options = [];
             try {
               try {
@@ -103,6 +110,10 @@ Bindings = {
               for (i = 0, _ref2 = property.length - 1; 0 <= _ref2 ? i <= _ref2 : i >= _ref2; 0 <= _ref2 ? i++ : i--) {
                 nested = nested[property[i]];
               }
+              isNull = nested != null;
+              if (!isNull) {
+                nested = "";
+              }
               if ($(eles).attr("data-val")) {
                 input_name = Bindings.getInputName(eles, property);
                 input_id = Bindings.getInputId(eles, property, row_count);
@@ -119,7 +130,7 @@ Bindings = {
                 }
               }
               if ($(eles).attr("data-href")) {
-                return row += Bindings.addLink(eles);
+                return row += Bindings.addTableLink(eles);
               }
             } catch (ex) {
               return row += Bindings.addEmptyColumn;
@@ -151,8 +162,8 @@ Bindings = {
     var input_type;
     input_type = void 0;
     try {
-      if ($(eles).attr("data-input") === "select") {
-        input_type = "select";
+      if ($(eles).attr("data-input")) {
+        input_type = $(eles).attr("data-input").toString();
       }
     } catch (ex) {
       input_type = "text";
@@ -166,7 +177,7 @@ Bindings = {
     } else if (property.length > 1) {
       return input_name = property.join("_");
     } else {
-      return input_name = property;
+      return input_name = property.toString();
     }
   },
   getInputId: function(eles, property, row_count) {

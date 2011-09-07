@@ -54,11 +54,12 @@ Bindings =
   bindTables: (data, container) ->
     row_count = 0
     jQuery.each(data, (i, val) ->
-        jQuery.each($(container).find("table"), (s, ele) ->
+        tables = jQuery.each($(container).find("table"))
+        jQuery.each(tables, (s, ele) ->
             obj = data
             row_count = $(ele).find("tr").length
-            if $(ele).attr("data-val")
-                property = $(ele).attr("data-val").split(".")
+            if $(ele).attr("data-src")
+                property = $(ele).attr("data-src").split(".")
                 for i in [0..property.length - 1]
                     obj = obj[property[i]]
             jQuery.each(obj, (s, object) ->
@@ -67,7 +68,8 @@ Bindings =
                     when "even" then evenOdd = "odd"
                     else evenOdd = "odd"
                 row = "<tr class='" + evenOdd + "'>"
-                jQuery.each($(ele).find("th"), (k, eles) ->
+                headers = $(ele).find("th")
+                jQuery.each(headers, (k, eles) ->
                     data_options = []
                     try
                         try
@@ -194,18 +196,42 @@ Bindings =
     
   bindData: (data, container) -> 
        @bindTables(data, container)
-       jQuery.each(data, (i, val) ->
-           jQuery.each($(container).children().find("select"), (i, ele) ->
-                  obj = data
-                  if $(ele).attr("data-val") 
-                    property = $(ele).attr("data-val").split(".")
-                    for i in [0..property.length - 1]
-                        obj = obj[property[i]]
-                    $(ele).val(obj)
-           )
-       )
+       
+       @bindSelects(data, container)
+       
+       @bindInputs(data, container)
+       
+       @bindCheckboxes(data, container)
+       
+       @bindEditables()
+
+       
+  bindSelects: ->
+    selects = $(container).children().find("select")
+     jQuery.each(selects, (i, ele) ->
+            obj = data
+            if $(ele).attr("data-val") 
+              property = $(ele).attr("data-val").split(".")
+              for i in [0..property.length - 1]
+                  obj = obj[property[i]]
+              $(ele).val(obj)
+     )
+  
+  bindInputs: ->
+       inputs = $(container).find("input:text")
+        jQuery.each(inputs, (i, ele) ->
+                   obj = data
+                   if $(ele).attr("data-val") 
+                     property = $(ele).attr("data-val").split(".")
+                     for i in [0..property.length - 1]
+                           obj = obj[property[i]]
+                     $(ele).val(obj)
+
+        )
       
-       jQuery.each($(container).children().find("input:checkbox"), (i, ele) ->
+  bindCheckboxes: ->
+       checkboxes = $(container).find("input:checkbox")
+       jQuery.each(checkboxes, (i, ele) ->
               obj = data
               if $(ele).attr("data-val") 
                 property = $(ele).attr("data-val").split(".")
@@ -214,14 +240,4 @@ Bindings =
                 $(ele).prop("checked", (obj))
                 
        )
-      
-       jQuery.each($("#{container} .text-data"), (i, ele) ->
-                  obj = data
-                  if $(ele).attr("data-val") 
-                    property = $(ele).attr("data-val").split(".")
-                    for i in [0..property.length - 1]
-                          obj = obj[property[i]]
-                    $(ele).val(obj)
-                    
-       )
-       @bindEditables()
+    

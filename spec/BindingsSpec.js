@@ -99,4 +99,24 @@ describe("Bindings", function(){
     
   });
   
+  // describe("bindLists", function() {
+  //   var idEle
+  //   var ele
+  //   var chainedProp
+  //   var prop
+  //   var rowCount
+  //   data = {}
+  //   bofreEach(function() {
+  //     idEle = "<body><input data-id='stuff'/></body>"
+  //     ele = "<body><input/></body>"
+  //     chainedProp = ["this", "that"]
+  //     prop = ["this"]
+  //   });
+  //   
+  //   it("should create a number of lists equal to the data", function()
+  //   {
+  //     expectBindings.bindLists(data, idEle).val
+  //   });
+  // });
+  
 })

@@ -1,0 +1,13 @@
+:javascript
+    users = #{@users}
+    view = #{@data}
+=link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
+%table{:data=>{:src=>"user"}}
+    %thead
+        %th{:data=>{:val=>"username"}} Username
+        %th{:data=>{:val=>"email"}} Email
+    %tbody
+    
+%br
+%br
+%select{:data=>{:val=>"user.state_id", :src=>"states"}}

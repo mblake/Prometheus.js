@@ -12,6 +12,9 @@ Samples =
     $("#bind_states").bind("click", ->
       Bindings.bindValues(selectedState)
     )
+    $("#change_label_one").bind("click", ->
+      Bindings.bindData(labels)
+    )
     
 $ ->
   Samples.init()

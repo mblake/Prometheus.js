@@ -3,6 +3,7 @@
     view = #{@data}
     states = #{@states}
     selectedState = #{@selected_state}
+    labels = {label_text: {one: "Your labels", two: " will change ", three: " whenever you like." }}
 =link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
 %table{:data=>{:src=>"user"}}
     %thead
@@ -17,3 +18,14 @@
 =link_to "Bind states Dropdown", "javascript:void(0)", :id=>"bind_states"
 %br
 %select#states_list{:data=>{:val=>"state.description", :src=>"state.description"}}
+
+%br
+%br
+=link_to "Change labels", "javascript:void(0)", :id=>"change_label_one"
+%br
+%label{:data=>{:val=>"label_text.one"}} 
+    Your text
+%label{:data=>{:val=>"label_text.two"}}
+    is fluid
+%label{:data=>{:val=>"label_text.three"}}
+    with prometheus.

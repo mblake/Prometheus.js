@@ -243,14 +243,17 @@ evenOdd = "even"
     )   
 
   bindLabels: (data, container) ->
-    labels = $(container).children().find("ul[datal-val]")
+    labels = $(container).find("label[data-val]")
     jQuery.each(labels, (i, ele) ->
-            obj = data
-            if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).val(obj)
+            jQuery.each(data, (i, obj) ->
+              if $(ele).attr("data-val") 
+                property = $(ele).attr("data-val").split(".")
+                try
+                  for i in [0..property.length - 1]
+                    obj = obj[property[i]]
+                  $(ele).html(obj)
+                catch ex
+            )
     )
 
   bindSelectSources: (data, container) ->

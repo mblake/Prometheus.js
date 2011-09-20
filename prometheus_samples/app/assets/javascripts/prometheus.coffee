@@ -246,8 +246,8 @@ evenOdd = "even"
 
        @bindEditables()
 
-  getEditableInput: (ele, val) ->
-    input = "<input value='#{val}'/>"
+  getEditableInput: (ele, val, name) ->
+    input = "<input value='#{val}' name='#{name}'/>"
     
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
@@ -265,8 +265,12 @@ evenOdd = "even"
                   catch ex
                   classes = Bindings.setColumnClasses(data_options)
                   input = ""
+                  if $(ele).attr("data-name")
+                    name = "#{$(ele).attr('data-name')}[#{list_count}]"
+                  else 
+                    name = "#{property.join('_')}[#{list_count}]"
                   if classes.indexOf("editable") != -1
-                    input = Bindings.getEditableInput(ele, obj)
+                    input = Bindings.getEditableInput(ele, obj, name)
                   $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{input}<label>#{obj}</label></li>")
                   list_count++
                   $(ele).find("select").hide()
@@ -282,9 +286,23 @@ evenOdd = "even"
               if $(ele).attr("data-val") 
                 property = $(ele).attr("data-val").split(".")
                 try
+                  data_options = ""
                   for i in [0..property.length - 1]
                     obj = obj[property[i]]
-                  $(ele).html(obj)
+                  try
+                    data_options = $(ele).attr("data-options").split(" ")
+                  catch ex
+                  classes = Bindings.setColumnClasses(data_options)
+                  input = ""
+                  
+                  if $(ele).attr("data-name")
+                    name = $(ele).attr("data-name")
+                  else
+                    name = property.join("_")
+                  if classes.indexOf("editable") != -1
+                    input = Bindings.getEditableInput(ele, obj, name)
+                  $(ele).html("<span class=#{classes}><label>#{obj}</label> #{input}</span>")
+                  $(ele).find("input").hide()
                 catch ex
             )
     )
@@ -308,7 +326,7 @@ evenOdd = "even"
                   catch ex
                 )
                 if val?
-                  if success = 0
+                  if success == 0
                     $(ele).html("")
                     success = 1
                   $(ele).append("<option value='#{value}'>#{val}</option>")

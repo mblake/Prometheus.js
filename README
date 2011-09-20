@@ -1,0 +1,35 @@
+TODO - 
+    ActiveRecord::Base.include_root_in_json = true 
+    
+    Links - Yay!
+    iFrames
+
+    Ideas - 
+        Make inputs optional in tables/lists?
+    Add Options for
+     - Blur 
+        Inputs
+        Editables
+     - Change
+        Inputs
+        Editables
+        Selects
+     - Actions
+        Lists
+        Table Headers
+        Label (LinkLabels, thank you .net)
+    Convert to JSON
+     - Convert selects
+     - Convert tables
+     - Full form
+    Data Validations
+     - Validates presence
+        Selects
+        Inputs
+     - Validates format
+        Inputs
+     - Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
+    Clear Form (clear values from data-val'd inputs)
+    Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)
+    AppendData method (useful for adding entities to table)
+    

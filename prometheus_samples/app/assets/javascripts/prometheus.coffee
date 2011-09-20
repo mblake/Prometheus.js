@@ -259,7 +259,7 @@ evenOdd = "even"
   bindSelectSources: (data, container) ->
     selects = $(container).find("select[data-val]")
     jQuery.each(selects, (i, ele) ->
-            $(ele).html("")
+            success = 0
             obj = data  
             if $(ele).attr("data-src")
               value = ""
@@ -275,6 +275,9 @@ evenOdd = "even"
                   catch ex
                 )
                 if val?
+                  if success = 0
+                    $(ele).html("")
+                    success = 1
                   $(ele).append("<option value='#{value}'>#{val}</option>")
               )
     )
@@ -310,11 +313,19 @@ evenOdd = "even"
   bindCheckboxes: (data, container) ->
        checkboxes = $(container).find("input:checkbox[data-val]")
        jQuery.each(checkboxes, (i, ele) ->
-              obj = data
               if $(ele).attr("data-val") 
-                property = $(ele).attr("data-val").split(".")
-                for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-                $(ele).prop("checked", (obj))
-                
+                jQuery.each(data, (i, obj) ->
+                  property = $(ele).attr("data-val").split(".")
+                  try
+                    for i in [0..property.length - 1]
+                      obj = obj[property[i]]
+                    $(ele).prop("checked", Bindings.getBoolean(obj))
+                  catch ex
+                )
        )
+       
+  getBoolean: (obj) ->
+    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined
+      return false
+    else
+      return true

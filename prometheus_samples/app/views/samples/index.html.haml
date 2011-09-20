@@ -4,6 +4,7 @@
     states = #{@states}
     selectedState = #{@selected_state}
     labels = {label_text: {one: "Your labels", two: " will change ", three: " whenever you like." }}
+    checkboxes = {true_false: {one: "false", two: "true", three: 0 }}
 =link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
 %table{:data=>{:src=>"user"}}
     %thead
@@ -21,7 +22,7 @@
 
 %br
 %br
-=link_to "Change labels", "javascript:void(0)", :id=>"change_label_one"
+=link_to "Change Labels", "javascript:void(0)", :id=>"change_label_one"
 %br
 %label{:data=>{:val=>"label_text.one"}} 
     Your text
@@ -29,3 +30,14 @@
     is fluid
 %label{:data=>{:val=>"label_text.three"}}
     with prometheus.
+    
+%br
+%br
+=link_to "Set Checkboxes", "javascript:void(0)", :id=>"bind_checkboxes"
+%br
+%input{:type=>"checkbox", :data=>{:val=>"true_false.one"}}
+Check1
+%input{:type=>"checkbox", :data=>{:val=>"true_false.two"}}
+Check 2
+%input{:type=>"checkbox", :data=>{:val=>"true_false.three"}}
+Check 3

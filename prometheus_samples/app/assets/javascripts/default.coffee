@@ -15,6 +15,8 @@ Samples =
     $("#change_label_one").bind("click", ->
       Bindings.bindData(labels)
     )
-    
+    $("#bind_checkboxes").bind("click", ->
+      Bindings.bindData(checkboxes)
+    )
 $ ->
   Samples.init()

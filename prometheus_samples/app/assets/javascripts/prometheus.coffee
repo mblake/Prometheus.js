@@ -105,7 +105,6 @@ evenOdd = "even"
               if $(eles).attr("data-href")
                   row += Bindings.addTableLink(eles)
            catch ex
-                alert(ex)
                 row += Bindings.addEmptyColumn
                 undefinedCount++
        
@@ -247,6 +246,9 @@ evenOdd = "even"
 
        @bindEditables()
 
+  getEditableInput: (ele, val) ->
+    input = "<input value='#{val}'/>"
+    
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
@@ -259,11 +261,16 @@ evenOdd = "even"
                       obj = obj[property[i]]
                   data_options = ""
                   try
-                    data_options = ($(eles).attr("data-options").split(" "))
+                    data_options = ($(ele).attr("data-options").split(" "))
                   catch ex
                   classes = Bindings.setColumnClasses(data_options)
-                  $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{obj}</li>")
+                  input = ""
+                  if classes.indexOf("editable") != -1
+                    input = Bindings.getEditableInput(ele, obj)
+                  $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{input}<label>#{obj}</label></li>")
                   list_count++
+                  $(ele).find("select").hide()
+                  $(ele).find("input").hide()
                 catch ex
               )
     )   

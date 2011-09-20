@@ -7,5 +7,6 @@ class SamplesController < ApplicationController
     @selected_state = State.find_by_description("NC").to_json
     @data = @subscription + @users + @product
     @data = @data.to_json
+    @cities = City.all.to_json
   end
 end

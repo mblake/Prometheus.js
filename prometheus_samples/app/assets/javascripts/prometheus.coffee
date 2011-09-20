@@ -232,14 +232,17 @@ evenOdd = "even"
        @bindEditables()
 
   bindLists: (data, container) ->
-    lists = $(container).children().find("ul[data-val]")
+    lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
-            obj = data
             if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).html("#{$(ele).html()}<li>#{obj}</li>")
+              jQuery.each(data, (i, obj) ->
+                property = $(ele).attr("data-val").split(".")
+                try
+                  for i in [0..property.length - 1]
+                      obj = obj[property[i]]
+                  $(ele).append("<li>#{obj}</li>")
+                catch ex
+              )
     )   
 
   bindLabels: (data, container) ->
@@ -301,12 +304,15 @@ evenOdd = "even"
   bindInputs: (data, container) ->
        inputs = $(container).find("input:text[data-val]")
        jQuery.each(inputs, (i, ele) ->
-                   obj = data
                    if $(ele).attr("data-val") 
-                     property = $(ele).attr("data-val").split(".")
-                     for i in [0..property.length - 1]
-                           obj = obj[property[i]]
-                     $(ele).val(obj)
+                     jQuery.each(data, (i, obj) ->
+                       property = $(ele).attr("data-val").split(".")
+                       try
+                         for i in [0..property.length - 1]
+                               obj = obj[property[i]]
+                         $(ele).val(obj)
+                       catch ex
+                     )
 
        )
       

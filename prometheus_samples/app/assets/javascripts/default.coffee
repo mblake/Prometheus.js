@@ -18,5 +18,11 @@ Samples =
     $("#bind_checkboxes").bind("click", ->
       Bindings.bindData(checkboxes)
     )
+    $("#bind_inputs").bind("click", ->
+      Bindings.bindData(inputs)
+    )
+    $("#bind_lists").bind("click", ->
+      Bindings.bindData(cities)
+    )
 $ ->
   Samples.init()

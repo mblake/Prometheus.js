@@ -5,6 +5,9 @@
     selectedState = #{@selected_state}
     labels = {label_text: {one: "Your labels", two: " will change ", three: " whenever you like." }}
     checkboxes = {true_false: {one: "false", two: "true", three: 0 }}
+    inputs = {song: {title: "This One"}}
+    cities = #{@cities}
+    
 =link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
 %table{:data=>{:src=>"user"}}
     %thead
@@ -41,3 +44,15 @@ Check1
 Check 2
 %input{:type=>"checkbox", :data=>{:val=>"true_false.three"}}
 Check 3
+
+%br
+%br
+=link_to "Set Input", "javascript:void(0)", :id=>"bind_inputs"
+%br
+%input{:data=>{:val=>"song.title"}}
+
+%br
+%br
+=link_to "Bind Lists", "javascript:void(0)", :id=>"bind_lists"
+%br
+%ul{:data=>{:val=>"city.description"}}

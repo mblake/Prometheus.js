@@ -105,6 +105,7 @@ evenOdd = "even"
                   row += Bindings.addTableLink(eles)
            catch ex
                 row += Bindings.addEmptyColumn
+                undefinedCount++
        
           )
         row += "</tr>"
@@ -199,6 +200,18 @@ evenOdd = "even"
     return classes.join(" ")
     
   bindData: (data, container) ->
+    @bindSources(data, container)
+    @bindValues(data, container)
+    
+  bindSources: (data, container) ->
+    if container == undefined
+      container = "body"
+    if data.constructor.toString().indexOf("Array") is -1
+      data = [data]
+    if(data)
+      @bindSelectSources(data, container)
+    
+  bindValues: (data, container) ->
      if container == undefined
        container = "body"
      if data.constructor.toString().indexOf("Array") is -1
@@ -240,16 +253,44 @@ evenOdd = "even"
               $(ele).val(obj)
     )
 
-  bindSelects: (data, container) ->
-    selects = $(container).children().find("select[data-val]")
+  bindSelectSources: (data, container) ->
+    selects = $(container).find("select[data-val]")
     jQuery.each(selects, (i, ele) ->
-            obj = data
-            if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).val(obj)
+            $(ele).html("")
+            obj = data  
+            if $(ele).attr("data-src")
+              value = ""
+              objects = []
+              src = $(ele).attr("data-src").split(".")
+              jQuery.each(obj, (i, val) ->  
+                val = val
+                jQuery.each(src, (i, str) ->
+                  try
+                    if i == src.length - 1
+                      value = val["id"]
+                    val = val[src[i]]
+                  catch ex
+                )
+                if val?
+                  $(ele).append("<option value='#{value}'>#{val}</option>")
+              )
     )
+              
+  bindSelects: (data, container) ->
+    selects = $(container).find("select[data-val]")
+    obj = data 
+    jQuery.each(selects, (i, ele) ->
+      if $(ele).attr("data-val") 
+        property = $(ele).attr("data-val").split(".")
+        jQuery.each(obj, (i, val) ->
+          try 
+            for i in [0..property.length - 1]
+              val = val[property[i]]
+            if val?
+              $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
+          catch ex
+        )
+    )          
   
   bindInputs: (data, container) ->
        inputs = $(container).find("input:text[data-val]")

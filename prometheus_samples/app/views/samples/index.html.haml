@@ -1,6 +1,8 @@
 :javascript
     users = #{@users}
     view = #{@data}
+    states = #{@states}
+    selectedState = #{@selected_state}
 =link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
 %table{:data=>{:src=>"user"}}
     %thead
@@ -10,4 +12,8 @@
     
 %br
 %br
-%select{:data=>{:val=>"user.state_id", :src=>"states"}}
+=link_to "Fill States Dropdown", "javascript:void(0)", :id=>"fill_states"
+%br
+=link_to "Bind states Dropdown", "javascript:void(0)", :id=>"bind_states"
+%br
+%select#states_list{:data=>{:val=>"state.description", :src=>"state.description"}}

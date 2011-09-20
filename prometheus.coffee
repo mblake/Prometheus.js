@@ -95,7 +95,8 @@ evenOdd = "even"
                   input_type = Bindings.getInputType(eles)
                   change = Bindings.getOnChange()
                   classes = Bindings.setColumnClasses(data_options)
-                  row += "<td class='#{$(eles).attr('data-class')} #{classes}'>"
+                  cls = Bindings.getClasses(eles)
+                  row += "<td class='#{cls} #{classes}'>"
                   row += "<label>#{nested}</label>"
                   if input_type == "select"
                     row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested)
@@ -105,16 +106,18 @@ evenOdd = "even"
                   row += Bindings.addTableLink(eles)
            catch ex
                 row += Bindings.addEmptyColumn
+                undefinedCount++
        
           )
         row += "</tr>"
         if undefinedCount < headers.length
           row_count++
           $(ele).find("tbody").append(row)
+          $(ele).find("input").hide()
+          $(ele).find("select").hide()
       )
     )
     Bindings.bindEditables()
-    $(".editable").hide()
    
 
   getOnChange: (eles) ->
@@ -151,6 +154,19 @@ evenOdd = "even"
         input_id = property.join("_")
         input_id = "#{input_id}_#{row_count}"
   
+  getId: (eles) ->
+    ele_id = ""
+    if $(eles).attr("data-id")
+      ele_id = $(eles).attr("data-id")
+    return ele_id
+    
+  getClasses: (eles) ->
+    if $(eles).attr("data-class")
+      cls = $(eles).attr("data-class")
+    else
+      cls = ""
+    return cls
+      
   addTableLink: (eles) ->
     row = "<td>"
     row += "<a href='#{$(eles).attr('data-href')}' onclick='#{$(eles).attr('data-click')}'><span class='#{$(eles).attr('data-class')}'> </span></a>"
@@ -199,6 +215,18 @@ evenOdd = "even"
     return classes.join(" ")
     
   bindData: (data, container) ->
+    @bindSources(data, container)
+    @bindValues(data, container)
+    
+  bindSources: (data, container) ->
+    if container == undefined
+      container = "body"
+    if data.constructor.toString().indexOf("Array") is -1
+      data = [data]
+    if(data)
+      @bindSelectSources(data, container)
+    
+  bindValues: (data, container) ->
      if container == undefined
        container = "body"
      if data.constructor.toString().indexOf("Array") is -1
@@ -218,59 +246,140 @@ evenOdd = "even"
 
        @bindEditables()
 
+  getEditableInput: (ele, val, name) ->
+    input = "<input value='#{val}' name='#{name}'/>"
+    
   bindLists: (data, container) ->
-    lists = $(container).children().find("ul[data-val]")
+    lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
-            obj = data
+            list_count = $(ele).find("li").length
             if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).html("#{$(ele).html()}<li>#{obj}</li>")
+              jQuery.each(data, (i, obj) ->
+                property = $(ele).attr("data-val").split(".")
+                try
+                  for i in [0..property.length - 1]
+                      obj = obj[property[i]]
+                  data_options = ""
+                  try
+                    data_options = ($(ele).attr("data-options").split(" "))
+                  catch ex
+                  classes = Bindings.setColumnClasses(data_options)
+                  input = ""
+                  if $(ele).attr("data-name")
+                    name = "#{$(ele).attr('data-name')}[#{list_count}]"
+                  else 
+                    name = "#{property.join('_')}[#{list_count}]"
+                  if classes.indexOf("editable") != -1
+                    input = Bindings.getEditableInput(ele, obj, name)
+                  $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{input}<label>#{obj}</label></li>")
+                  list_count++
+                  $(ele).find("select").hide()
+                  $(ele).find("input").hide()
+                catch ex
+              )
     )   
 
   bindLabels: (data, container) ->
-    labels = $(container).children().find("ul[datal-val]")
+    labels = $(container).find("label[data-val]")
     jQuery.each(labels, (i, ele) ->
-            obj = data
-            if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).val(obj)
+            jQuery.each(data, (i, obj) ->
+              if $(ele).attr("data-val") 
+                property = $(ele).attr("data-val").split(".")
+                try
+                  data_options = ""
+                  for i in [0..property.length - 1]
+                    obj = obj[property[i]]
+                  try
+                    data_options = $(ele).attr("data-options").split(" ")
+                  catch ex
+                  classes = Bindings.setColumnClasses(data_options)
+                  input = ""
+                  
+                  if $(ele).attr("data-name")
+                    name = $(ele).attr("data-name")
+                  else
+                    name = property.join("_")
+                  if classes.indexOf("editable") != -1
+                    input = Bindings.getEditableInput(ele, obj, name)
+                  $(ele).html("<span class=#{classes}><label>#{obj}</label> #{input}</span>")
+                  $(ele).find("input").hide()
+                catch ex
+            )
     )
 
-  bindSelects: (data, container) ->
-    selects = $(container).children().find("select[data-val]")
+  bindSelectSources: (data, container) ->
+    selects = $(container).find("select[data-val]")
     jQuery.each(selects, (i, ele) ->
-            obj = data
-            if $(ele).attr("data-val") 
-              property = $(ele).attr("data-val").split(".")
-              for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-              $(ele).val(obj)
+            success = 0
+            obj = data  
+            if $(ele).attr("data-src")
+              value = ""
+              objects = []
+              src = $(ele).attr("data-src").split(".")
+              jQuery.each(obj, (i, val) ->  
+                val = val
+                jQuery.each(src, (i, str) ->
+                  try
+                    if i == src.length - 1
+                      value = val["id"]
+                    val = val[src[i]]
+                  catch ex
+                )
+                if val?
+                  if success == 0
+                    $(ele).html("")
+                    success = 1
+                  $(ele).append("<option value='#{value}'>#{val}</option>")
+              )
     )
+              
+  bindSelects: (data, container) ->
+    selects = $(container).find("select[data-val]")
+    obj = data 
+    jQuery.each(selects, (i, ele) ->
+      if $(ele).attr("data-val") 
+        property = $(ele).attr("data-val").split(".")
+        jQuery.each(obj, (i, val) ->
+          try 
+            for i in [0..property.length - 1]
+              val = val[property[i]]
+            if val?
+              $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
+          catch ex
+        )
+    )          
   
   bindInputs: (data, container) ->
        inputs = $(container).find("input:text[data-val]")
        jQuery.each(inputs, (i, ele) ->
-                   obj = data
                    if $(ele).attr("data-val") 
-                     property = $(ele).attr("data-val").split(".")
-                     for i in [0..property.length - 1]
-                           obj = obj[property[i]]
-                     $(ele).val(obj)
+                     jQuery.each(data, (i, obj) ->
+                       property = $(ele).attr("data-val").split(".")
+                       try
+                         for i in [0..property.length - 1]
+                               obj = obj[property[i]]
+                         $(ele).val(obj)
+                       catch ex
+                     )
 
        )
       
   bindCheckboxes: (data, container) ->
        checkboxes = $(container).find("input:checkbox[data-val]")
        jQuery.each(checkboxes, (i, ele) ->
-              obj = data
               if $(ele).attr("data-val") 
-                property = $(ele).attr("data-val").split(".")
-                for i in [0..property.length - 1]
-                  obj = obj[property[i]]
-                $(ele).prop("checked", (obj))
-                
+                jQuery.each(data, (i, obj) ->
+                  property = $(ele).attr("data-val").split(".")
+                  try
+                    for i in [0..property.length - 1]
+                      obj = obj[property[i]]
+                    $(ele).prop("checked", Bindings.getBoolean(obj))
+                  catch ex
+                )
        )
+       
+  getBoolean: (obj) ->
+    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined
+      return false
+    else
+      return true

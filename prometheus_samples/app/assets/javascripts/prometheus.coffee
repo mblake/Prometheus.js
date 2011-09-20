@@ -95,7 +95,8 @@ evenOdd = "even"
                   input_type = Bindings.getInputType(eles)
                   change = Bindings.getOnChange()
                   classes = Bindings.setColumnClasses(data_options)
-                  row += "<td class='#{$(eles).attr('data-class')} #{classes}'>"
+                  cls = Bindings.getClasses(eles)
+                  row += "<td class='#{cls} #{classes}'>"
                   row += "<label>#{nested}</label>"
                   if input_type == "select"
                     row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested)
@@ -104,6 +105,7 @@ evenOdd = "even"
               if $(eles).attr("data-href")
                   row += Bindings.addTableLink(eles)
            catch ex
+                alert(ex)
                 row += Bindings.addEmptyColumn
                 undefinedCount++
        
@@ -112,10 +114,11 @@ evenOdd = "even"
         if undefinedCount < headers.length
           row_count++
           $(ele).find("tbody").append(row)
+          $(ele).find("input").hide()
+          $(ele).find("select").hide()
       )
     )
     Bindings.bindEditables()
-    $(".editable").hide()
    
 
   getOnChange: (eles) ->
@@ -152,6 +155,19 @@ evenOdd = "even"
         input_id = property.join("_")
         input_id = "#{input_id}_#{row_count}"
   
+  getId: (eles) ->
+    ele_id = ""
+    if $(eles).attr("data-id")
+      ele_id = $(eles).attr("data-id")
+    return ele_id
+    
+  getClasses: (eles) ->
+    if $(eles).attr("data-class")
+      cls = $(eles).attr("data-class")
+    else
+      cls = ""
+    return cls
+      
   addTableLink: (eles) ->
     row = "<td>"
     row += "<a href='#{$(eles).attr('data-href')}' onclick='#{$(eles).attr('data-click')}'><span class='#{$(eles).attr('data-class')}'> </span></a>"
@@ -234,13 +250,20 @@ evenOdd = "even"
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
+            list_count = $(ele).find("li").length
             if $(ele).attr("data-val") 
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
                 try
                   for i in [0..property.length - 1]
                       obj = obj[property[i]]
-                  $(ele).append("<li>#{obj}</li>")
+                  data_options = ""
+                  try
+                    data_options = ($(eles).attr("data-options").split(" "))
+                  catch ex
+                  classes = Bindings.setColumnClasses(data_options)
+                  $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{obj}</li>")
+                  list_count++
                 catch ex
               )
     )   

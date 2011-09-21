@@ -30,5 +30,23 @@ TODO -
      - Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
     Clear Form (clear values from data-val'd inputs)
     Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)
-    AppendData method (useful for adding entities to table)
+        
     
+Cleanup Tasks -
+    
+    Remove try catches and replace with logical if checks
+    remove jQuery.each statements and use more performant for loops
+    Reduce number of loops overall
+    Clean up scopes
+    General performance tuning
+
+Documentation - 
+    API documentation
+        bindData
+        bindSources
+        bindValues
+        appendData
+    Cleanup and format samples
+    Formal introduction to Prometheus
+    Prometheus versioning
+    Prometheus roadmap

@@ -1,5 +1,6 @@
 valIdPairs = {}
 evenOdd = "even"
+appendData = false
 @Bindings =
   init: ->
     @mapDataValsToIds()
@@ -55,6 +56,7 @@ evenOdd = "even"
     row_count = 0
     tables = $(container).find("table")
     jQuery.each(tables, (s, ele) ->
+      success = 0
       jQuery.each(data, (s, data) ->
         undefinedCount = 0
         obj = data
@@ -112,6 +114,10 @@ evenOdd = "even"
         row += "</tr>"
         if undefinedCount < headers.length
           row_count++
+          if not success
+            if not appendData
+              $(ele).find("tbody").html("")
+              success = 1
           $(ele).find("tbody").append(row)
           $(ele).find("input").hide()
           $(ele).find("select").hide()
@@ -215,10 +221,18 @@ evenOdd = "even"
     return classes.join(" ")
     
   bindData: (data, container) ->
-    @bindSources(data, container)
-    @bindValues(data, container)
-    
-  bindSources: (data, container) ->
+    @bindSources(data, container, false)
+    @bindValues(data, container, false)
+
+  appendData: (data, container) ->
+    @bindSources(data, container, true)
+    @bindValues(data, container, true)
+
+  bindSources: (data, container, append) ->
+    if append
+      appendData = append
+    else
+      appendData = false
     if container == undefined
       container = "body"
     if data.constructor.toString().indexOf("Array") is -1
@@ -252,6 +266,7 @@ evenOdd = "even"
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
+            success = 0
             list_count = $(ele).find("li").length
             if $(ele).attr("data-val") 
               jQuery.each(data, (i, obj) ->
@@ -271,6 +286,10 @@ evenOdd = "even"
                     name = "#{property.join('_')}[#{list_count}]"
                   if classes.indexOf("editable") != -1
                     input = Bindings.getEditableInput(ele, obj, name)
+                  if not success
+                    if not appendData
+                      $(ele).html("")
+                      success = 1
                   $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{input}<label>#{obj}</label></li>")
                   list_count++
                   $(ele).find("select").hide()
@@ -327,7 +346,8 @@ evenOdd = "even"
                 )
                 if val?
                   if success == 0
-                    $(ele).html("")
+                    if not appendData
+                      $(ele).html("")
                     success = 1
                   $(ele).append("<option value='#{value}'>#{val}</option>")
               )

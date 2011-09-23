@@ -7,12 +7,13 @@ TODO -
         Make inputs optional in tables/lists?
     Add Options for
      - Blur 
-        Inputs
-        Editables
+        Lists - Done
+        Labels - Done
+        Tables
      - Change
-        Inputs
-        Editables
-        Selects
+        Lists - Done
+        Labels - Done
+        Tables - Done
      - Actions
         Lists
         Table Headers

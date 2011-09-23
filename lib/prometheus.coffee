@@ -95,15 +95,16 @@ appendData = false
                   input_id =  Bindings.getInputId(eles, property, row_count)
                   input_name = "#{input_name}[#{row_count}]"
                   input_type = Bindings.getInputType(eles)
-                  change = Bindings.getOnChange()
+                  change = Bindings.getOnChange(eles)
                   classes = Bindings.setColumnClasses(data_options)
                   cls = Bindings.getClasses(eles)
                   row += "<td class='#{cls} #{classes}'>"
                   row += "<label>#{nested}</label>"
+                  blur = Bindings.getOnBlur(eles)
                   if input_type == "select"
-                    row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested)
+                    row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested, change, blur)
                   else
-                    row += Bindings.addTableInput(input_name, input_id, nested, property, change)
+                    row += Bindings.addTableInput(input_name, input_id, nested, property, change, blur)
               if $(eles).attr("data-href")
                   row += Bindings.addTableLink(eles)
            catch ex
@@ -179,10 +180,10 @@ appendData = false
     row += "</td>"
     return row
      
-  addTableInput: (name, id, nested, property, change) ->
+  addTableInput: (name, id, nested, property, change, blur) ->
     unless nested?
       return null
-    row  = "<input name='#{name}' id='#{id}' value='#{nested}' class='hidden #{property.join("_")} editable' onchange='#{change}'/>"
+    row  = "<input name='#{name}' id='#{id}' value='#{nested}' onblur='#{blur}' class='hidden #{property.join("_")} editable' onchange='#{change}'/>"
     row += "</td>"
     return row
     
@@ -190,7 +191,7 @@ appendData = false
     row = "<td></td>"
     return row
     
-  addTableSelect: (input_name, row_count, val, eles, property, data, nested) ->
+  addTableSelect: (input_name, row_count, val, eles, property, data, nested,change, blur) ->
     row = ""
     select_options = data
     property = $(eles).attr("data-select").split(".")
@@ -199,7 +200,7 @@ appendData = false
     for i in [0..property.length - 1]
         select_options = select_options[property[i]]
     input_id = property.join("_")
-    row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden'>"
+    row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden' onchange='#{change}' onblur='#{blur}'>"
     jQuery.each($(select_options), (i, val)->
       row += "<option value='#{val.value}'"
       if val.text == nested
@@ -260,8 +261,17 @@ appendData = false
 
        @bindEditables()
 
-  getEditableInput: (ele, val, name) ->
-    input = "<input value='#{val}' name='#{name}'/>"
+  getEditableInput: (ele, val, name, change, blur) ->
+    input = $(document.createElement("input"))
+    input.attr("value", val)
+    input.attr("onblur", blur)
+    input.attr("onchange", change)
+    input.attr("name", name)
+    return input
+    
+  getOnBlur: (ele) ->
+    if $(ele).attr("data-blur")
+      return $(ele).attr("data-blur")
     
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
@@ -271,6 +281,8 @@ appendData = false
             if $(ele).attr("data-val") 
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
+                change = Bindings.getOnChange(ele)
+                blur = Bindings.getOnBlur(ele)
                 try
                   for i in [0..property.length - 1]
                       obj = obj[property[i]]
@@ -285,16 +297,24 @@ appendData = false
                   else 
                     name = "#{property.join('_')}[#{list_count}]"
                   if classes.indexOf("editable") != -1
-                    input = Bindings.getEditableInput(ele, obj, name)
+                    input = Bindings.getEditableInput(ele, obj, name, change, blur)
                   if not success
                     if not appendData
                       $(ele).html("")
                       success = 1
-                  $(ele).append("<li class='#{Bindings.getClasses(ele)} #{classes}' id='#{Bindings.getId(ele)}_#{list_count}'>#{input}<label>#{obj}</label></li>")
+                  li = $(document.createElement('li'))
+                  li.attr("class", "#{Bindings.getClasses(ele)} #{classes}")
+                  li.attr("id", "#{Bindings.getId(ele)}_#{list_count}")
+                  li.append(input)
+                  label = $(document.createElement('label'))
+                  label.html(obj)
+                  li.append(label)
+                  $(ele).append(li)
                   list_count++
                   $(ele).find("select").hide()
                   $(ele).find("input").hide()
                 catch ex
+                  alert(ex)
               )
     )   
 
@@ -313,18 +333,26 @@ appendData = false
                   catch ex
                   classes = Bindings.setColumnClasses(data_options)
                   input = ""
-                  
+                  change = Bindings.getOnChange(ele)
+                  blur = Bindings.getOnBlur(ele)
                   if $(ele).attr("data-name")
                     name = $(ele).attr("data-name")
                   else
                     name = property.join("_")
                   if classes.indexOf("editable") != -1
-                    input = Bindings.getEditableInput(ele, obj, name)
-                  $(ele).html("<span class=#{classes}><label>#{obj}</label> #{input}</span>")
-                  $(ele).find("input").hide()
+                    input = Bindings.getEditableInput(ele, obj, name, change, blur)
+                  span = $(document.createElement('span')).attr("class", classes)
+                  label = $(document.createElement('label'))
+                  label.append(obj)
+                  span.append(label)
+                  span.append(input)
+                  $(ele).html("")
+                  $(ele).append(span)
                 catch ex
             )
+    
     )
+    $(labels).find("input").hide()
 
   bindSelectSources: (data, container) ->
     selects = $(container).find("select[data-val]")
@@ -349,7 +377,9 @@ appendData = false
                     if not appendData
                       $(ele).html("")
                     success = 1
-                  $(ele).append("<option value='#{value}'>#{val}</option>")
+                  option = $(document.createElement('option'), {value: value})
+                  option.html(val)
+                  $(ele).append(option)
               )
     )
               

@@ -1,8 +1,7 @@
-#Prometheus.js
-
 Introducing Prometheus.js. A sensible solution to Templating. 
 
-###What we are: 
+What we are
+===========
 Prometheus.js is my own attempt at solving that pesky question, in a web 2.0 world, how do we do forms over data. There are dozens of people trying to answer this question, and Prometheus.js is an answer to many of those existing solutions. 
 
 Let me start by saying Prometheus.js is heavily influenced by other templating engines like PURE. Prometheus is a pure javascript and jquery implementation of a templating engine developed in CoffeeScript. A lot of names there right? 
@@ -19,8 +18,8 @@ What I wanted to do with Prometheus was provide a simple solution that would all
 
 Of course there are other arguments, and Prometheus won't be ideal for every situation. Nothing is.
 
-###The API In Short
-
+The API In Short
+================
 Very simply Prometheus (to the outside world) consists of three calls.
 
 Prometheus.bindData

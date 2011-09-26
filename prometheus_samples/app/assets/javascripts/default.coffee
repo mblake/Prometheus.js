@@ -4,25 +4,25 @@ Samples =
     
   bindLinks: ->
     $("#bind_user").bind("click", ->
-      Bindings.bindData(users)
+      Prometheus.bindData(users)
     )
     $("#fill_states").bind("click", ->
-      Bindings.bindSources(states)
+      Prometheus.bindSources(states)
     )
     $("#bind_states").bind("click", ->
-      Bindings.bindValues(selectedState)
+      Prometheus.bindValues(selectedState)
     )
     $("#change_label_one").bind("click", ->
-      Bindings.bindData(labels)
+      Prometheus.bindData(labels)
     )
     $("#bind_checkboxes").bind("click", ->
-      Bindings.bindData(checkboxes)
+      Prometheus.bindData(checkboxes)
     )
     $("#bind_inputs").bind("click", ->
-      Bindings.bindData(inputs)
+      Prometheus.bindData(inputs)
     )
     $("#bind_lists").bind("click", ->
-      Bindings.bindData(cities)
+      Prometheus.bindData(cities)
     )
 $ ->
   Samples.init()

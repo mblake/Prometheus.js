@@ -11,7 +11,7 @@
 =link_to "Bind User Table", "javascript:void(0)", :id=>"bind_user"
 %table{:data=>{:src=>"user"}}
     %thead
-        %th{:data=>{:val=>"username", :options=>"inline-edit", :name=>"MyName", :blur=>"alert('hello')"}} Username
+        %th{:data=>{:val=>"username", :options=>"inline-edit", :name=>"MyName", :change=>"alert('hello')"}} Username
         %th{:data=>{:val=>"email"}} Email
     %tbody
     
@@ -27,7 +27,7 @@
 %br
 =link_to "Change Labels", "javascript:void(0)", :id=>"change_label_one"
 %br
-%label{:data=>{:val=>"label_text.one", :options=>"inline-edit", :name=>"MyName", :blur=>"alert('hello')"}} 
+%label{:data=>{:val=>"label_text.one", :options=>"inline-edit", :name=>"MyName", :change=>"alert('hello')"}} 
     Your text
 %label{:data=>{:val=>"label_text.two"}}
     is fluid
@@ -55,4 +55,4 @@ Check 3
 %br
 =link_to "Bind Lists", "javascript:void(0)", :id=>"bind_lists"
 %br
-%ul{:data=>{:val=>"city.description", :class=>"myClass", :id=>"myId", :options=>"inline-edit", :name=>"MyName"}}
+%ul{:data=>{:val=>"city.description", :class=>"myClass", :id=>"myId", :options=>"inline-edit", :name=>"MyName", :change=>"alert('goodbye')"}}

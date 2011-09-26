@@ -1,19 +1,25 @@
+Introducing Prometheus.js. A sensible solution to Templating. 
+
+<b> What we are: </b>
+
 TODO - 
     Add Support For -
-        Links - Yay!
-        iFrames
+        Links - Yay! (maybe?)
+        iFrames (figure out if this has value, or is even a thing)
 
     Ideas - 
-        Make inputs optional in tables/lists?
+        Make inputs optional in tables/lists when non-editable
     Add Options for
-     - Blur 
-        Lists - Done
-        Labels - Done
-        Tables
-     - Change
-        Lists - Done
-        Labels - Done
+     - Bind with Select 
         Tables - Done
+        Lists 
+        Labels
+     -Bind with bool
+        Tables
+        Lists
+        Labels
+     - Blur 
+        Double firing issues, need to resolve before implementing
      - Actions
         Lists
         Table Headers
@@ -35,7 +41,9 @@ TODO -
     
 Cleanup Tasks -
     
+    Clean up tables to use all the new editable methods
     Remove try catches and replace with logical if checks
+    Switch string creationg of elements to document.createElement
     remove jQuery.each statements and use more performant for loops
     Reduce number of loops overall
     Clean up scopes

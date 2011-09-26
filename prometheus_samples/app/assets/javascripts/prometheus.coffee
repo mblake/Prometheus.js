@@ -1,7 +1,7 @@
 valIdPairs = {}
 evenOdd = "even"
 appendData = false
-@Bindings =
+@Prometheus =
   init: ->
     @mapDataValsToIds()
     @bindEditables()
@@ -91,24 +91,23 @@ appendData = false
               nested = "" unless isNull
               undefinedCount++ unless isNull
               if $(eles).attr("data-val")
-                  input_name = Bindings.getInputName(eles, property)
-                  input_id =  Bindings.getInputId(eles, property, row_count)
+                  input_name = Prometheus.getInputName(eles, property)
+                  input_id =  Prometheus.getInputId(eles, property, row_count)
                   input_name = "#{input_name}[#{row_count}]"
-                  input_type = Bindings.getInputType(eles)
-                  change = Bindings.getOnChange(eles)
-                  classes = Bindings.setColumnClasses(data_options)
-                  cls = Bindings.getClasses(eles)
+                  input_type = Prometheus.getInputType(eles)
+                  change = Prometheus.getOnChange(eles)
+                  classes = Prometheus.setColumnClasses(data_options)
+                  cls = Prometheus.getClasses(eles)
                   row += "<td class='#{cls} #{classes}'>"
                   row += "<label>#{nested}</label>"
-                  blur = Bindings.getOnBlur(eles)
                   if input_type == "select"
-                    row += Bindings.addTableSelect(input_name, row_count, val, eles, property, data, nested, change, blur)
+                    row += Prometheus.addTableSelect(input_name, row_count, val, eles, property, data, nested, change, blur)
                   else
-                    row += Bindings.addTableInput(input_name, input_id, nested, property, change, blur)
+                    row += Prometheus.addTableInput(input_name, input_id, nested, property, change, blur)
               if $(eles).attr("data-href")
-                  row += Bindings.addTableLink(eles)
+                  row += Prometheus.addTableLink(eles)
            catch ex
-                row += Bindings.addEmptyColumn
+                row += Prometheus.addEmptyColumn
                 undefinedCount++
        
           )
@@ -124,7 +123,7 @@ appendData = false
           $(ele).find("select").hide()
       )
     )
-    Bindings.bindEditables()
+    Prometheus.bindEditables()
    
 
   getOnChange: (eles) ->
@@ -183,7 +182,7 @@ appendData = false
   addTableInput: (name, id, nested, property, change, blur) ->
     unless nested?
       return null
-    row  = "<input name='#{name}' id='#{id}' value='#{nested}' onblur='#{blur}' class='hidden #{property.join("_")} editable' onchange='#{change}'/>"
+    row  = "<input name='#{name}' id='#{id}' value='#{nested}' onblur='#{blur}' class='hidden #{property.join("_")} editable' onchange=\"#{change}\"/>"
     row += "</td>"
     return row
     
@@ -263,15 +262,21 @@ appendData = false
 
   getEditableInput: (ele, val, name, change, blur) ->
     input = $(document.createElement("input"))
-    input.attr("value", val)
-    input.attr("onblur", blur)
-    input.attr("onchange", change)
-    input.attr("name", name)
+    if Prometheus.getBoolean(val)
+      input.attr("value", val)
+    if Prometheus.getBoolean(blur)
+      input.attr("onblur", blur)
+    if Prometheus.getBoolean(change)
+      input.attr("onchange", change)
+    if Prometheus.getBoolean(name)
+      input.attr("name", name)
     return input
     
   getOnBlur: (ele) ->
     if $(ele).attr("data-blur")
-      return $(ele).attr("data-blur")
+      return ""
+    else
+      return ""
     
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
@@ -281,8 +286,7 @@ appendData = false
             if $(ele).attr("data-val") 
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
-                change = Bindings.getOnChange(ele)
-                blur = Bindings.getOnBlur(ele)
+                change = Prometheus.getOnChange(ele)
                 try
                   for i in [0..property.length - 1]
                       obj = obj[property[i]]
@@ -290,21 +294,24 @@ appendData = false
                   try
                     data_options = ($(ele).attr("data-options").split(" "))
                   catch ex
-                  classes = Bindings.setColumnClasses(data_options)
+                  classes = Prometheus.setColumnClasses(data_options)
                   input = ""
                   if $(ele).attr("data-name")
                     name = "#{$(ele).attr('data-name')}[#{list_count}]"
                   else 
                     name = "#{property.join('_')}[#{list_count}]"
+                  # TODO figure out a better way to blur and get rid of this
+                  blur = undefined
                   if classes.indexOf("editable") != -1
-                    input = Bindings.getEditableInput(ele, obj, name, change, blur)
+                    input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   if not success
                     if not appendData
                       $(ele).html("")
                       success = 1
+                  
                   li = $(document.createElement('li'))
-                  li.attr("class", "#{Bindings.getClasses(ele)} #{classes}")
-                  li.attr("id", "#{Bindings.getId(ele)}_#{list_count}")
+                  li.attr("class", "#{Prometheus.getClasses(ele)} #{classes}")
+                  li.attr("id", "#{Prometheus.getId(ele)}_#{list_count}")
                   li.append(input)
                   label = $(document.createElement('label'))
                   label.html(obj)
@@ -314,7 +321,6 @@ appendData = false
                   $(ele).find("select").hide()
                   $(ele).find("input").hide()
                 catch ex
-                  alert(ex)
               )
     )   
 
@@ -331,16 +337,17 @@ appendData = false
                   try
                     data_options = $(ele).attr("data-options").split(" ")
                   catch ex
-                  classes = Bindings.setColumnClasses(data_options)
+                  classes = Prometheus.setColumnClasses(data_options)
                   input = ""
-                  change = Bindings.getOnChange(ele)
-                  blur = Bindings.getOnBlur(ele)
+                  change = Prometheus.getOnChange(ele)
                   if $(ele).attr("data-name")
                     name = $(ele).attr("data-name")
                   else
                     name = property.join("_")
+                  # TODO Consider how to best handle blur, then make this go away
+                  blur = undefined
                   if classes.indexOf("editable") != -1
-                    input = Bindings.getEditableInput(ele, obj, name, change, blur)
+                    input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   span = $(document.createElement('span')).attr("class", classes)
                   label = $(document.createElement('label'))
                   label.append(obj)
@@ -423,13 +430,13 @@ appendData = false
                   try
                     for i in [0..property.length - 1]
                       obj = obj[property[i]]
-                    $(ele).prop("checked", Bindings.getBoolean(obj))
+                    $(ele).prop("checked", Prometheus.getBoolean(obj))
                   catch ex
                 )
        )
        
   getBoolean: (obj) ->
-    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined
+    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined or obj is "undefined"
       return false
     else
       return true

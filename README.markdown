@@ -99,6 +99,7 @@ Tests are appreciated, and you'll find the standalone Jasmine testing tool inclu
     Add Support For
         Links - Yay! (maybe?)
         iFrames (figure out if this has value, or is even a thing)
+        Complex Arrays (Arrays in objects in Arrays in objects)
     Ideas 
         Make inputs optional in tables/lists when non-editable
         Add non-json object format support? (Any value?)

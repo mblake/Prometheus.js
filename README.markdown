@@ -90,40 +90,40 @@ Contributors are always welcome. To contribute to Prometheus please create a for
 
 Tests are appreciated, and you'll find the standalone Jasmine testing tool included in this project.
 
-TODO - 
-    Add Support For -
+###TODO -
+ 
+    Add Support For
         Links - Yay! (maybe?)
         iFrames (figure out if this has value, or is even a thing)
-
-    Ideas - 
+    Ideas 
         Make inputs optional in tables/lists when non-editable
         Add non-json object format support? (Any value?)
     Add Options for
-     - Bind with Select 
-        Tables - Done
-        Lists 
-        Labels
-     -Bind with bool
-        Tables
-        Lists
-        Labels
-     - Blur 
-        Double firing issues, need to resolve before implementing
-     - Actions
-        Lists
-        Table Headers
-        Label (LinkLabels, thank you .net)
+        Bind with Select 
+            Tables - Done
+            Lists 
+            Labels
+        Bind with bool
+            Tables
+            Lists
+            Labels
+        Blur 
+            Double firing issues, need to resolve before implementing
+        Actions
+            Lists
+            Table Headers
+            Label
     Convert to JSON
-     - Convert selects
-     - Convert tables
-     - Full form
+        Convert selects
+        Convert tables
+        Full form
     Data Validations
-     - Validates presence
-        Selects
-        Inputs
-     - Validates format
-        Inputs
-     - Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
+        Validates presence
+            Selects
+            Inputs
+        Validates format
+            Inputs
+        Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
     Clear Form (clear values from data-val'd inputs)
     Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)
         

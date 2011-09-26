@@ -11,9 +11,11 @@ Prometheus provides the ability to provide a javascript method with JSON, and bi
 
 Since this is essentially the functionality provided by so many other tools out there, what makes Prometheus worth using? It's all about design philosophy.
 
-I love PURE, PURE is a hardcore developer's templating engine. It does magical things and gives you the power to influence every single one of them. However, recently I have started working with designers, which is a different experience than working with a bunch of other developers geeking out on the tweaks that something like PURE gives us. 
+I love PURE, PURE gives us a great jumping off point for so many things. Where my philosophy differs is that I feel that the view should know how it wants to display the data. If you take an example using Object.as_json or Object.to_json the ORM dynamically picks up the structure of the table on boot, the data is grabbed and dynamically converted to json then password to the javascript. At this point the PURE philosophy on some of the more basic tasks still follows the idea of knowing how to display the data in the javascript.
 
-What I wanted to do with Prometheus was provide a simple solution that would allow designers to continue to design (and modify) pages without having to understand the magic that gets the data on the screen one tiny bit.
+With Prometheus only the view worries about where the data goes in the view, or even if it does. The javascript is there to follow the same dynamic tendencies of the ORM and Rails server behind it, without needing any knowledge of what the view looks like.
+
+What I wanted to do with Prometheus was provide a simple solution that would allow designers to continue to design (and modify) pages without having to understand the magic that gets the data on the screen one tiny bit, and minimize the work required to hook the back end data into the front end view.
 
 "But you can always set your page entirely in javascript" you might say. Yes you can, I've done it. What you're doing is tightly coupling your javascript to your view. If an id changes everything breaks, if something gets removed from the view, you have to go remove it from the right place in your javascript or everything breaks, if you add something you have to get it from the database, insert it into your json object, insert it into your javascript then attach it to an element you created on the page. It's bad. I've done it many times, and it becomes a maintenance nightmare. 
 

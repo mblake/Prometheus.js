@@ -65,6 +65,7 @@ Prometheus.bindValues works exactly like bindData, except instead of binding bot
 An optional third parameter can be passed to bindValues which is a bool for appending data. If true is passed as the third option into bind values, data present in the object passed will be appended to existing on page data.
 
 Example: 
+
 > Prometheus.bindValues(userObject, "#usersContainer", true)
 
 This would append the users in your user object to the table, leaving any existing users there and creating duplicates where duplicates exist.
@@ -74,7 +75,8 @@ Prometheus.bindSources will rebind sources regardless of whether or not they hav
 
 An optional third parameter can be passed to bindSources which is a bool for appending data. If true is passed as the third option into bind values, data present in the object passed will be appended to existing on page data.
 
-Example
+Example:
+
 > Prometheus.bindSources(userObject, "#usersContainer", true)
 
 ###Disclaimer-Type stuff (oh, and licensing too)

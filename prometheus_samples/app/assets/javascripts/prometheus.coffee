@@ -1,6 +1,7 @@
 valIdPairs = {}
 evenOdd = "even"
 appendData = false
+srcBound = false
 @Prometheus =
   init: ->
     @mapDataValsToIds()
@@ -221,7 +222,9 @@ appendData = false
     return classes.join(" ")
     
   bindData: (data, container) ->
-    @bindSources(data, container, false)
+    if not srcBound
+      @bindSources(data, container, false)
+      srcBound = true
     @bindValues(data, container, false)
 
   appendData: (data, container) ->
@@ -240,7 +243,11 @@ appendData = false
     if(data)
       @bindSelectSources(data, container)
     
-  bindValues: (data, container) ->
+  bindValues: (data, container, append) ->
+     if append
+       appendData = append
+     else
+       appendData = false
      if container == undefined
        container = "body"
      if data.constructor.toString().indexOf("Array") is -1

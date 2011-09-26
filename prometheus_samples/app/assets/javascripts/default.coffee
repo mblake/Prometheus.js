@@ -4,7 +4,7 @@ Samples =
     
   bindLinks: ->
     $("#bind_user").bind("click", ->
-      Prometheus.bindData(users)
+      Prometheus.bindValues(users, "body", true)
     )
     $("#fill_states").bind("click", ->
       Prometheus.bindSources(states)

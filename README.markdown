@@ -129,8 +129,7 @@ Tests are appreciated, and you'll find the standalone Jasmine testing tool inclu
             Inputs
         Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
     Clear Form (clear values from data-val'd inputs)
-    Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)
-        
+    Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)    
     
 Cleanup Tasks -
     

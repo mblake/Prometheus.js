@@ -262,13 +262,17 @@ srcBound = false
        @bindCheckboxes(data, container)
     
        @bindLists(data, container)
-
+       
        @bindLabels(data, container)
 
        @bindEditables()
 
   getEditableInput: (ele, val, name, change, blur) ->
-    input = $(document.createElement("input"))
+    if $(ele).attr("data-type") == "select"
+      input = $(document.createElement("select"))
+      input.attr("data-src", $(ele).attr("data-src"))
+    else
+      input = $(document.createElement("input"))
     if Prometheus.getBoolean(val)
       input.attr("value", val)
     if Prometheus.getBoolean(blur)
@@ -362,22 +366,24 @@ srcBound = false
                   span.append(input)
                   $(ele).html("")
                   $(ele).append(span)
+                  if $(ele).attr("data-type") == "select"
+                    Prometheus.bindSelectSources(data, ele)
                 catch ex
+
             )
-    
+
     )
     $(labels).find("input").hide()
 
   bindSelectSources: (data, container) ->
-    selects = $(container).find("select[data-val]")
+    selects = $(container).find("select[data-src]")
     jQuery.each(selects, (i, ele) ->
             success = 0
-            obj = data  
             if $(ele).attr("data-src")
               value = ""
               objects = []
               src = $(ele).attr("data-src").split(".")
-              jQuery.each(obj, (i, val) ->  
+              jQuery.each(data, (i, val) ->  
                 val = val
                 jQuery.each(src, (i, str) ->
                   try
@@ -396,7 +402,13 @@ srcBound = false
                   $(ele).append(option)
               )
     )
-              
+             
+             
+  getRootArray: (data) ->
+    while data[0].constructor.toString().indexOf("Array") is not -1 
+      data = data[0]
+    return data
+      
   bindSelects: (data, container) ->
     selects = $(container).find("select[data-val]")
     obj = data 

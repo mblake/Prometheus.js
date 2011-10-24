@@ -2,7 +2,8 @@ valIdPairs = {}
 evenOdd = "even"
 appendData = false
 srcBound = false
-@Prometheus =
+
+@Prometheus=
   init: ->
     @mapDataValsToIds()
     @bindEditables()
@@ -21,6 +22,13 @@ srcBound = false
        )
        inputs = $(".editable").find("input")
        selects = $(".editable").find("select")
+       $(selects).bind("change", ->
+            # $(this).blur()
+            # label = $(this).parent().find("label")
+            #             $(label).html($("#" + this.id + " option:selected").text())
+            #             $(this).hide()
+            #             $(label).show()
+       )
        $(selects).bind("blur", ->
             label = $(this).parent().find("label")
             $(label).html($("#" + this.id + " option:selected").text())
@@ -72,6 +80,7 @@ srcBound = false
           when "even" then evenOdd = "odd"
           else evenOdd = "odd"
         row = "<tr class='" + evenOdd + "'>"
+        
         headers = $(ele).find("th")
         jQuery.each(headers, (k, eles) ->
            data_options = []
@@ -89,6 +98,7 @@ srcBound = false
               for i in [0..property.length - 1]
                   nested = nested[property[i]]
               isNull = nested?
+              
               nested = "" unless isNull
               undefinedCount++ unless isNull
               if $(eles).attr("data-val")
@@ -259,20 +269,73 @@ srcBound = false
        
        @bindInputs(data, container)
     
+       @bindHiddens(data, container)
+       
        @bindCheckboxes(data, container)
     
        @bindLists(data, container)
        
        @bindLabels(data, container)
+       
+       @bindSpan(data, container)
 
        @bindEditables()
 
-  getEditableInput: (ele, val, name, change, blur) ->
+
+  bindSpan: (data, container) ->
+    labels = $(container).find("span[data-val]")
+    jQuery.each(labels, (i, ele) ->
+            jQuery.each(data, (i, obj) ->
+              if $(ele).attr("data-val") 
+                property = $(ele).attr("data-val").split(".")
+                try
+                  data_options = ""
+                  for i in [0..property.length - 1]
+                    obj = obj[property[i]]
+                  try
+                    data_options = $(ele).attr("data-options").split(" ")
+                  catch ex
+                  classes = Prometheus.setColumnClasses(data_options)
+                  input = ""
+                  change = Prometheus.getOnChange(ele)
+                  if $(ele).attr("data-name")
+                    name = $(ele).attr("data-name")
+                  else
+                    name = property.join("_")
+                  # TODO Consider how to best handle blur, then make this go away
+                  # blur = undefined
+                  if classes.indexOf("editable") != -1
+                    input = Prometheus.getEditableInput(ele, obj, name, change)
+                  span = $(document.createElement('span')).attr("class", classes)
+                  label = $(document.createElement('label'))
+                  label.append(obj)
+                  span.append(label)
+                  span.append(input)
+                  $(label).html(obj)
+                  $(ele).append(span)
+                  if $(ele).attr("data-type") == "select"
+                    Prometheus.bindSelectSources(data, ele)
+                catch ex
+            )
+
+    )
+    $(labels).find("input").hide()
+    $(labels).find("select").hide()
+    Prometheus.bindEditables()
+
+  getEditableInput: (ele, val, name, change, blur, title) ->
     if $(ele).attr("data-type") == "select"
       input = $(document.createElement("select"))
       input.attr("data-src", $(ele).attr("data-src"))
     else
       input = $(document.createElement("input"))
+    if $(ele).attr("data-key")
+      $(input).attr("data-key", $(ele).attr("data-key"))
+    if $(ele).attr("data-title")
+      $(input).attr("data-title", $(ele).attr("data-title"))
+    $(input).attr("id", "#{$(ele).attr("id")}_input")
+    if $(ele).attr("data-src")
+      input.attr("data-src", $(ele).attr("data-src"))
     if Prometheus.getBoolean(val)
       input.attr("value", val)
     if Prometheus.getBoolean(blur)
@@ -293,6 +356,7 @@ srcBound = false
     lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
             success = 0
+            title = ""
             list_count = $(ele).find("li").length
             if $(ele).attr("data-val") 
               jQuery.each(data, (i, obj) ->
@@ -300,6 +364,9 @@ srcBound = false
                 change = Prometheus.getOnChange(ele)
                 try
                   for i in [0..property.length - 1]
+                      if $(ele).attr("data-title")
+                        if obj[$(ele).attr("data-title")]
+                          title = obj[$(ele).attr("data-title")]
                       obj = obj[property[i]]
                   data_options = ""
                   try
@@ -313,16 +380,17 @@ srcBound = false
                     name = "#{property.join('_')}[#{list_count}]"
                   # TODO figure out a better way to blur and get rid of this
                   blur = undefined
-                  if classes.indexOf("editable") != -1
-                    input = Prometheus.getEditableInput(ele, obj, name, change, blur)
+                  # if classes.indexOf("editable") != -1
+                  #   input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   if not success
                     if not appendData
                       $(ele).html("")
                       success = 1
-                  
+                  input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   li = $(document.createElement('li'))
                   li.attr("class", "#{Prometheus.getClasses(ele)} #{classes}")
                   li.attr("id", "#{Prometheus.getId(ele)}_#{list_count}")
+                  li.attr("title", "#{title}")
                   li.append(input)
                   label = $(document.createElement('label'))
                   label.html(obj)
@@ -380,6 +448,7 @@ srcBound = false
     jQuery.each(selects, (i, ele) ->
             success = 0
             if $(ele).attr("data-src")
+              title = ""
               value = ""
               objects = []
               src = $(ele).attr("data-src").split(".")
@@ -387,8 +456,12 @@ srcBound = false
                 val = val
                 jQuery.each(src, (i, str) ->
                   try
-                    if i == src.length - 1
-                      value = val["id"]
+                    if $(ele).attr("data-title")
+                      if val[$(ele).attr("data-title")]
+                        title = val[$(ele).attr("data-title")]
+                    if $(ele).attr("data-key")
+                      if val[$(ele).attr("data-key")]
+                        value = val[$(ele).attr("data-key")]
                     val = val[src[i]]
                   catch ex
                 )
@@ -397,7 +470,9 @@ srcBound = false
                     if not appendData
                       $(ele).html("")
                     success = 1
-                  option = $(document.createElement('option'), {value: value})
+                  option = $(document.createElement('option'))
+                  option.attr("title", title)
+                  option.attr("value", value)
                   option.html(val)
                   $(ele).append(option)
               )
@@ -420,6 +495,7 @@ srcBound = false
             for i in [0..property.length - 1]
               val = val[property[i]]
             if val?
+              $(ele).val(val)
               $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
           catch ex
         )
@@ -439,6 +515,22 @@ srcBound = false
                      )
 
        )
+      
+  bindHiddens: (data, container) ->
+       inputs = $(container).find("input:hidden[data-val]")
+       jQuery.each(inputs, (i, ele) ->
+                   if $(ele).attr("data-val") 
+                     jQuery.each(data, (i, obj) ->
+                       property = $(ele).attr("data-val").split(".")
+                       try
+                         for i in [0..property.length - 1]
+                               obj = obj[property[i]]
+                         $(ele).val(obj)
+                       catch ex
+                     )
+
+       )
+  
       
   bindCheckboxes: (data, container) ->
        checkboxes = $(container).find("input:checkbox[data-val]")

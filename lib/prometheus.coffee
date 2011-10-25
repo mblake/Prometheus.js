@@ -41,7 +41,7 @@ srcBound = false
             $(this).hide()
             $(label).show()
        )
-       
+
   nullCheck: (val)->
     if val == null
       return ""
@@ -80,65 +80,71 @@ srcBound = false
           when "even" then evenOdd = "odd"
           else evenOdd = "odd"
         row = "<tr class='" + evenOdd + "'>"
-        
+
         headers = $(ele).find("th")
-        jQuery.each(headers, (k, eles) ->
-           data_options = []
-           try
-              try
-                data_options = ($(eles).attr("data-options").split(" "))
-              catch ex
-                values = eles
-              try
-                property = $(eles).attr("data-val").split(".")
-              catch ex
-              unless property?
-                return null
-              nested = obj
-              for i in [0..property.length - 1]
+        if obj.constructor.toString().indexOf("Array") is -1
+          obj = [obj]
+        jQuery.each(obj, (k, obj) ->
+          jQuery.each(headers, (k, eles) ->
+             data_options = []
+             try
+                try
+                  data_options = ($(eles).attr("data-options").split(" "))
+                catch ex
+                  values = eles
+                try
+                  property = $(eles).attr("data-val").split(".")
+                catch ex
+                unless property?
+                  return null
+                nested = obj
+
+                for i in [0..property.length - 1]
                   nested = nested[property[i]]
-              isNull = nested?
-              
-              nested = "" unless isNull
-              undefinedCount++ unless isNull
-              if $(eles).attr("data-val")
-                  input_name = Prometheus.getInputName(eles, property)
-                  input_id =  Prometheus.getInputId(eles, property, row_count)
-                  input_name = "#{input_name}[#{row_count}]"
-                  input_type = Prometheus.getInputType(eles)
-                  change = Prometheus.getOnChange(eles)
-                  classes = Prometheus.setColumnClasses(data_options)
-                  cls = Prometheus.getClasses(eles)
-                  row += "<td class='#{cls} #{classes}'>"
-                  row += "<label>#{nested}</label>"
-                  if input_type == "select"
-                    row += Prometheus.addTableSelect(input_name, row_count, val, eles, property, data, nested, change, blur)
-                  else
-                    row += Prometheus.addTableInput(input_name, input_id, nested, property, change, blur)
-              if $(eles).attr("data-href")
-                  row += Prometheus.addTableLink(eles)
-           catch ex
-                row += Prometheus.addEmptyColumn
-                undefinedCount++
-       
-          )
-        row += "</tr>"
-        if undefinedCount < headers.length
-          row_count++
-          if not success
-            if not appendData
-              $(ele).find("tbody").html("")
-              success = 1
-          $(ele).find("tbody").append(row)
-          $(ele).find("input").hide()
-          $(ele).find("select").hide()
+
+                isNull = nested?
+
+                nested = "" unless isNull
+                undefinedCount++ unless isNull
+                if $(eles).attr("data-val")
+                    input_name = Prometheus.getInputName(eles, property)
+                    input_id =  Prometheus.getInputId(eles, property, row_count)
+                    input_name = "#{input_name}[#{row_count}]"
+                    input_type = Prometheus.getInputType(eles)
+                    change = Prometheus.getOnChange(eles)
+                    classes = Prometheus.setColumnClasses(data_options)
+                    cls = Prometheus.getClasses(eles)
+                    row += "<td class='#{cls} #{classes}'>"
+                    row += "<label>#{nested}</label>"
+                    if input_type == "select"
+                      row += Prometheus.addTableSelect(input_name, row_count, property, eles, property, data, nested, change, blur)
+                    else
+                      row += Prometheus.addTableInput(input_name, input_id, nested, property, change, blur)
+                if $(eles).attr("data-href")
+                    row += Prometheus.addTableLink(eles)
+             catch ex
+                  row += Prometheus.addEmptyColumn
+                  undefinedCount++
+
+            )
+          row += "</tr>"
+          if undefinedCount < headers.length
+            row_count++
+            if not success
+              if not appendData
+                $(ele).find("tbody").html("")
+                success = 1
+            $(ele).find("tbody").append(row)
+            $(ele).find("input").hide()
+            $(ele).find("select").hide()
+        )
       )
     )
     Prometheus.bindEditables()
-   
+
 
   getOnChange: (eles) ->
-    change = "" 
+    change = ""
     try
       if $(eles).attr("data-change")
         change = $(eles).attr("data-change")
@@ -150,57 +156,57 @@ srcBound = false
   getInputType: (eles) ->
     input_type = undefined
     try
-      if $(eles).attr("data-input") 
+      if $(eles).attr("data-input")
           input_type = $(eles).attr("data-input").toString()
     catch ex
       input_type = "text"
     return input_type
-  
+
   getInputName: (eles, property) ->
     if $(eles).attr("data-name")
         input_name = $(eles).attr("data-name")
-    else if property.length > 1 
+    else if property.length > 1
         input_name = property.join("_")
     else
         input_name = property.toString()
-  
+
   getInputId: (eles, property, row_count) ->
     if $(eles).attr("data-id")
         input_id = $(eles).attr("data-id")
     else
         input_id = property.join("_")
         input_id = "#{input_id}_#{row_count}"
-  
+
   getId: (eles) ->
     ele_id = ""
     if $(eles).attr("data-id")
       ele_id = $(eles).attr("data-id")
     return ele_id
-    
+
   getClasses: (eles) ->
     if $(eles).attr("data-class")
       cls = $(eles).attr("data-class")
     else
       cls = ""
     return cls
-      
+
   addTableLink: (eles) ->
     row = "<td>"
     row += "<a href='#{$(eles).attr('data-href')}' onclick='#{$(eles).attr('data-click')}'><span class='#{$(eles).attr('data-class')}'> </span></a>"
     row += "</td>"
     return row
-     
+
   addTableInput: (name, id, nested, property, change, blur) ->
     unless nested?
       return null
     row  = "<input name='#{name}' id='#{id}' value='#{nested}' onblur='#{blur}' class='hidden #{property.join("_")} editable' onchange=\"#{change}\"/>"
     row += "</td>"
     return row
-    
+
   addEmptyColumn: ->
     row = "<td></td>"
     return row
-    
+
   addTableSelect: (input_name, row_count, val, eles, property, data, nested,change, blur) ->
     row = ""
     select_options = data
@@ -220,7 +226,7 @@ srcBound = false
     row += "</select>"
     row += "</td>"
     return row
-    
+
   setColumnClasses: (options) ->
     classes = []
     jQuery.each(options, (i, val) ->
@@ -230,7 +236,7 @@ srcBound = false
         return ""
     )
     return classes.join(" ")
-    
+
   bindData: (data, container) ->
     if not srcBound
       @bindSources(data, container, false)
@@ -252,7 +258,7 @@ srcBound = false
       data = [data]
     if(data)
       @bindSelectSources(data, container)
-    
+
   bindValues: (data, container, append) ->
      if append
        appendData = append
@@ -264,19 +270,19 @@ srcBound = false
        data = [data]
      if(data)
        @bindTables(data, container)
-       
+
        @bindSelects(data, container)
-       
+
        @bindInputs(data, container)
-    
+
        @bindHiddens(data, container)
-       
+
        @bindCheckboxes(data, container)
-    
+
        @bindLists(data, container)
-       
+
        @bindLabels(data, container)
-       
+
        @bindSpan(data, container)
 
        @bindEditables()
@@ -286,7 +292,7 @@ srcBound = false
     labels = $(container).find("span[data-val]")
     jQuery.each(labels, (i, ele) ->
             jQuery.each(data, (i, obj) ->
-              if $(ele).attr("data-val") 
+              if $(ele).attr("data-val")
                 property = $(ele).attr("data-val").split(".")
                 try
                   data_options = ""
@@ -345,20 +351,20 @@ srcBound = false
     if Prometheus.getBoolean(name)
       input.attr("name", name)
     return input
-    
+
   getOnBlur: (ele) ->
     if $(ele).attr("data-blur")
       return ""
     else
       return ""
-    
+
   bindLists: (data, container) ->
     lists = $(container).find("ul[data-val]")
     jQuery.each(lists, (i, ele) ->
             success = 0
             title = ""
             list_count = $(ele).find("li").length
-            if $(ele).attr("data-val") 
+            if $(ele).attr("data-val")
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
                 change = Prometheus.getOnChange(ele)
@@ -376,7 +382,7 @@ srcBound = false
                   input = ""
                   if $(ele).attr("data-name")
                     name = "#{$(ele).attr('data-name')}[#{list_count}]"
-                  else 
+                  else
                     name = "#{property.join('_')}[#{list_count}]"
                   # TODO figure out a better way to blur and get rid of this
                   blur = undefined
@@ -401,13 +407,13 @@ srcBound = false
                   $(ele).find("input").hide()
                 catch ex
               )
-    )   
+    )
 
   bindLabels: (data, container) ->
     labels = $(container).find("label[data-val]")
     jQuery.each(labels, (i, ele) ->
             jQuery.each(data, (i, obj) ->
-              if $(ele).attr("data-val") 
+              if $(ele).attr("data-val")
                 property = $(ele).attr("data-val").split(".")
                 try
                   data_options = ""
@@ -452,7 +458,7 @@ srcBound = false
               value = ""
               objects = []
               src = $(ele).attr("data-src").split(".")
-              jQuery.each(data, (i, val) ->  
+              jQuery.each(data, (i, val) ->
                 val = val
                 jQuery.each(src, (i, str) ->
                   try
@@ -477,21 +483,21 @@ srcBound = false
                   $(ele).append(option)
               )
     )
-             
-             
+
+
   getRootArray: (data) ->
-    while data[0].constructor.toString().indexOf("Array") is not -1 
+    while data[0].constructor.toString().indexOf("Array") is not -1
       data = data[0]
     return data
-      
+
   bindSelects: (data, container) ->
     selects = $(container).find("select[data-val]")
-    obj = data 
+    obj = data
     jQuery.each(selects, (i, ele) ->
-      if $(ele).attr("data-val") 
+      if $(ele).attr("data-val")
         property = $(ele).attr("data-val").split(".")
         jQuery.each(obj, (i, val) ->
-          try 
+          try
             for i in [0..property.length - 1]
               val = val[property[i]]
             if val?
@@ -499,12 +505,12 @@ srcBound = false
               $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
           catch ex
         )
-    )          
-  
+    )
+
   bindInputs: (data, container) ->
        inputs = $(container).find("input:text[data-val]")
        jQuery.each(inputs, (i, ele) ->
-                   if $(ele).attr("data-val") 
+                   if $(ele).attr("data-val")
                      jQuery.each(data, (i, obj) ->
                        property = $(ele).attr("data-val").split(".")
                        try
@@ -515,11 +521,11 @@ srcBound = false
                      )
 
        )
-      
+
   bindHiddens: (data, container) ->
        inputs = $(container).find("input:hidden[data-val]")
        jQuery.each(inputs, (i, ele) ->
-                   if $(ele).attr("data-val") 
+                   if $(ele).attr("data-val")
                      jQuery.each(data, (i, obj) ->
                        property = $(ele).attr("data-val").split(".")
                        try
@@ -530,12 +536,12 @@ srcBound = false
                      )
 
        )
-  
-      
+
+
   bindCheckboxes: (data, container) ->
        checkboxes = $(container).find("input:checkbox[data-val]")
        jQuery.each(checkboxes, (i, ele) ->
-              if $(ele).attr("data-val") 
+              if $(ele).attr("data-val")
                 jQuery.each(data, (i, obj) ->
                   property = $(ele).attr("data-val").split(".")
                   try
@@ -545,9 +551,10 @@ srcBound = false
                   catch ex
                 )
        )
-       
+
   getBoolean: (obj) ->
     if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined or obj is "undefined"
       return false
     else
       return true
+

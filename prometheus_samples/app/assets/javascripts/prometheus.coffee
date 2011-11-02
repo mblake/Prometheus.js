@@ -65,6 +65,8 @@ srcBound = false
     row_count = 0
     tables = $(container).find("table")
     jQuery.each(tables, (s, ele) ->
+      
+      html = ""
       success = 0
       jQuery.each(data, (s, data) ->
         undefinedCount = 0
@@ -80,7 +82,6 @@ srcBound = false
           when "even" then evenOdd = "odd"
           else evenOdd = "odd"
         row = "<tr class='" + evenOdd + "'>"
-
         headers = $(ele).find("th")
         if obj.constructor.toString().indexOf("Array") is -1
           obj = [obj]
@@ -103,7 +104,7 @@ srcBound = false
                   nested = nested[property[i]]
 
                 isNull = nested?
-
+                
                 nested = "" unless isNull
                 undefinedCount++ unless isNull
                 if $(eles).attr("data-val")
@@ -130,15 +131,17 @@ srcBound = false
           row += "</tr>"
           if undefinedCount < headers.length
             row_count++
+            html += row
+            row = ""
             if not success
               if not appendData
                 $(ele).find("tbody").html("")
                 success = 1
-            $(ele).find("tbody").append(row)
-            $(ele).find("input").hide()
-            $(ele).find("select").hide()
         )
       )
+      $(ele).find("tbody").append(html)
+      $(ele).find("input").hide()
+      $(ele).find("select").hide()
     )
     Prometheus.bindEditables()
 
@@ -452,6 +455,7 @@ srcBound = false
   bindSelectSources: (data, container) ->
     selects = $(container).find("select[data-src]")
     jQuery.each(selects, (i, ele) ->
+            options = ""
             success = 0
             if $(ele).attr("data-src")
               title = ""
@@ -476,12 +480,10 @@ srcBound = false
                     if not appendData
                       $(ele).html("")
                     success = 1
-                  option = $(document.createElement('option'))
-                  option.attr("title", title)
-                  option.attr("value", value)
-                  option.html(val)
-                  $(ele).append(option)
+                  option = "<option title='#{title}' value=#{value}>#{val}</option>"
+                  options += option
               )
+              $(ele).append(options)
     )
 
 

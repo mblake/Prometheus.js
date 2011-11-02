@@ -3,7 +3,7 @@ evenOdd = "even"
 appendData = false
 srcBound = false
 
-@Prometheus=
+window.Prometheus=
   init: ->
     @mapDataValsToIds()
     @bindEditables()

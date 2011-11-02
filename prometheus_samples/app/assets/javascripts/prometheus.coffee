@@ -5,8 +5,8 @@ srcBound = false
 
 window.Prometheus=
   init: ->
-    @mapDataValsToIds()
-    @bindEditables()
+    Prometheus.mapDataValsToIds()
+    Prometheus.bindEditables()
   bindEditables: ->
        $(".editable").bind("click", ->
             input = $(this).find("input")
@@ -83,6 +83,8 @@ window.Prometheus=
           else evenOdd = "odd"
         row = "<tr class='" + evenOdd + "'>"
         headers = $(ele).find("th")
+        if not obj
+          return null
         if obj.constructor.toString().indexOf("Array") is -1
           obj = [obj]
         jQuery.each(obj, (k, obj) ->
@@ -241,14 +243,19 @@ window.Prometheus=
     return classes.join(" ")
 
   bindData: (data, container) ->
-    if not srcBound
-      @bindSources(data, container, false)
-      srcBound = true
-    @bindValues(data, container, false)
-
+   
+    if not Prometheus.srcBound
+      
+      Prometheus.bindSources(data, container, false)
+      
+      
+      Prometheus.srcBound = true
+ 
+    Prometheus.bindValues(data, container, false)
+    
   appendData: (data, container) ->
-    @bindSources(data, container, true)
-    @bindValues(data, container, true)
+    Prometheus.bindSources(data, container, true)
+    Prometheus.bindValues(data, container, true)
 
   bindSources: (data, container, append) ->
     if append
@@ -260,7 +267,7 @@ window.Prometheus=
     if data.constructor.toString().indexOf("Array") is -1
       data = [data]
     if(data)
-      @bindSelectSources(data, container)
+      Prometheus.bindSelectSources(data, container)
 
   bindValues: (data, container, append) ->
      if append
@@ -269,26 +276,27 @@ window.Prometheus=
        appendData = false
      if container == undefined
        container = "body"
+     
      if data.constructor.toString().indexOf("Array") is -1
        data = [data]
      if(data)
-       @bindTables(data, container)
+       Prometheus.bindTables(data, container)
+       
+       Prometheus.bindSelects(data, container)
+       
+       Prometheus.bindInputs(data, container)
 
-       @bindSelects(data, container)
+       Prometheus.bindHiddens(data, container)
+       
+       Prometheus.bindCheckboxes(data, container)
 
-       @bindInputs(data, container)
+       Prometheus.bindLists(data, container)
 
-       @bindHiddens(data, container)
+       Prometheus.bindLabels(data, container)
 
-       @bindCheckboxes(data, container)
+       Prometheus.bindSpan(data, container)
 
-       @bindLists(data, container)
-
-       @bindLabels(data, container)
-
-       @bindSpan(data, container)
-
-       @bindEditables()
+       Prometheus.bindEditables()
 
 
   bindSpan: (data, container) ->

@@ -105,15 +105,14 @@ Tests are appreciated, and you'll find the standalone Jasmine testing tool inclu
         Add non-json object format support? (Any value?)
     Add Options for
         Bind with Select 
-            Tables - Done
             Lists 
             Labels
         Bind with bool
             Tables
             Lists
             Labels
-        Blur 
-            Double firing issues, need to resolve before implementing
+        Blur/Change
+            Replace Blur/Change with jquery binds instead of HTML
         Actions
             Lists
             Table Headers

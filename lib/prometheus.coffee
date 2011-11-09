@@ -204,7 +204,7 @@ window.Prometheus=
   addTableInput: (name, id, nested, property, change, blur) ->
     unless nested?
       return null
-    row  = "<input name='#{name}' id='#{id}' value='#{nested}' onblur='#{blur}' class='hidden #{property.join("_")} editable' onchange=\"#{change}\"/>"
+    row  = "<input name='#{name}' id='#{id}' value='#{nested}'  class='hidden #{property.join("_")} editable' onchange=\"#{change}\"/>"
     row += "</td>"
     return row
 
@@ -221,7 +221,7 @@ window.Prometheus=
     for i in [0..property.length - 1]
         select_options = select_options[property[i]]
     input_id = property.join("_")
-    row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden' onchange='#{change}' onblur='#{blur}'>"
+    row += "<select id='#{input_id}_#{row_count}' name='#{input_name}' class='hidden' onchange='#{change}'>"
     jQuery.each($(select_options), (i, val)->
       row += "<option value='#{val.value}'"
       if val.text == nested
@@ -302,6 +302,7 @@ window.Prometheus=
   bindSpan: (data, container) ->
     labels = $(container).find("span[data-val]")
     jQuery.each(labels, (i, ele) ->
+            spans = ""
             jQuery.each(data, (i, obj) ->
               if $(ele).attr("data-val")
                 property = $(ele).attr("data-val").split(".")
@@ -323,18 +324,20 @@ window.Prometheus=
                   # blur = undefined
                   if classes.indexOf("editable") != -1
                     input = Prometheus.getEditableInput(ele, obj, name, change)
-                  span = $(document.createElement('span')).attr("class", classes)
-                  label = $(document.createElement('label'))
-                  label.append(obj)
-                  span.append(label)
-                  span.append(input)
-                  $(label).html(obj)
-                  $(ele).append(span)
-                  if $(ele).attr("data-type") == "select"
-                    Prometheus.bindSelectSources(data, ele)
+                  spans += "<span class=#{classes}><label>#{obj}</label>#{$(input)[0].outerHTML}</span>"
+                  # span = $(document.createElement('span')).attr("class", classes)
+                  # label = $(document.createElement('label'))
+                  # label.append(obj)
+                  # span.append(label)
+                  # span.append(input)
+                  # $(label).html(obj)
+                  # $(ele).append(span)
                 catch ex
             )
-
+            if spans != ""
+              $(ele).append(spans)
+              if $(ele).attr("data-type") == "select"
+                Prometheus.bindSelectSources(data, ele)
     )
     $(labels).find("input").hide()
     $(labels).find("select").hide()
@@ -355,8 +358,8 @@ window.Prometheus=
       input.attr("data-src", $(ele).attr("data-src"))
     if Prometheus.getBoolean(val)
       input.attr("value", val)
-    if Prometheus.getBoolean(blur)
-      input.attr("onblur", blur)
+    # if Prometheus.getBoolean(blur)
+    #   input.attr("onblur", blur)
     if Prometheus.getBoolean(change)
       input.attr("onchange", change)
     if Prometheus.getBoolean(name)

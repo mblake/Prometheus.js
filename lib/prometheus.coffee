@@ -132,6 +132,7 @@ window.Prometheus=
             )
           row += "</tr>"
           if undefinedCount < headers.length
+            undefinedCount = 0
             row_count++
             html += row
             row = ""
@@ -515,7 +516,7 @@ window.Prometheus=
               val = val[property[i]]
             if val?
               $(ele).val(val)
-              $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
+              $("##{$(ele).attr("id")} option:eq('#{val}')").attr("selected", "selected");
           catch ex
         )
     )

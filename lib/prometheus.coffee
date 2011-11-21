@@ -567,7 +567,7 @@ window.Prometheus=
        )
 
   getBoolean: (obj) ->
-    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined or obj is "undefined"
+    if obj is 0 or obj is "false" or obj is "" or obj is "0" or obj is null or obj is undefined or obj is "undefined" or obj is false
       return false
     else
       return true

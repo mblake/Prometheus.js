@@ -211,6 +211,7 @@ window.Prometheus=
 
   addEmptyColumn: ->
     row = "<td></td>"
+
     return row
 
   addTableSelect: (input_name, row_count, val, eles, property, data, nested,change, blur) ->
@@ -325,7 +326,7 @@ window.Prometheus=
                   # blur = undefined
                   if classes.indexOf("editable") != -1
                     input = Prometheus.getEditableInput(ele, obj, name, change)
-                  spans += "<span class=#{classes}><label>#{obj}</label>#{$(input)[0].outerHTML}</span>"
+                  spans += "<span class=#{classes}><label>#{obj}</label>#{input}</span>"
                   # span = $(document.createElement('span')).attr("class", classes)
                   # label = $(document.createElement('label'))
                   # label.append(obj)
@@ -345,26 +346,39 @@ window.Prometheus=
     Prometheus.bindEditables()
 
   getEditableInput: (ele, val, name, change, blur, title) ->
-    if $(ele).attr("data-type") == "select"
-      input = $(document.createElement("select"))
-      input.attr("data-src", $(ele).attr("data-src"))
+    dataType = $(ele).attr("data-type")
+    if dataType == "select"
+      input = "<select "
+      input += "data-src='#{$(ele).attr("data-src")}' "
     else
-      input = $(document.createElement("input"))
+      # input = $(document.createElement("input"))
+      input = "<input "
     if $(ele).attr("data-key")
-      $(input).attr("data-key", $(ele).attr("data-key"))
+     # $(input).attr("data-key", $(ele).attr("data-key"))
+     input += "data-key='#{$(ele).attr("data-key")}' "
     if $(ele).attr("data-title")
-      $(input).attr("data-title", $(ele).attr("data-title"))
-    $(input).attr("id", "#{$(ele).attr("id")}_input")
+      # $(input).attr("data-title", $(ele).attr("data-title"))
+      input += "data-title='#{$(ele).attr("data-title")}' "
+    # $(input).attr("id", "#{$(ele).attr("id")}_input")
+    input += "id='#{$(ele).attr("id")}_input' "
     if $(ele).attr("data-src")
-      input.attr("data-src", $(ele).attr("data-src"))
+      # input.attr("data-src", $(ele).attr("data-src"))
+      input += "data-src='#{$(ele).attr("data-src")}' "
     if Prometheus.getBoolean(val)
-      input.attr("value", val)
+      input += "value='#{val}' "
+      # input.attr("value", val)
     # if Prometheus.getBoolean(blur)
     #   input.attr("onblur", blur)
     if Prometheus.getBoolean(change)
-      input.attr("onchange", change)
+      # input.attr("onchange", change)
+      input += "onchange='#{change}' "
     if Prometheus.getBoolean(name)
-      input.attr("name", name)
+      # input.attr("name", name)
+      input += "name='#{name}' "
+    if dataType == "select"
+      input += "> </select>"
+    else
+      input += "/>"
     return input
 
   getOnBlur: (ele) ->
@@ -382,8 +396,17 @@ window.Prometheus=
             if $(ele).attr("data-val")
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
-                change = Prometheus.getOnChange(ele)
+                additional_property = []
                 try
+                  additional_property = $(ele).attr("data-additional").split(".")
+                catch ex
+                change = Prometheus.getOnChange(ele)
+                adtl = obj
+                try
+                  try
+                    for i in [0..additional_property.length - 1]
+                        adtl = adtl[additional_property[i]]
+                  catch ex
                   for i in [0..property.length - 1]
                       if $(ele).attr("data-title")
                         if obj[$(ele).attr("data-title")]
@@ -399,6 +422,10 @@ window.Prometheus=
                     name = "#{$(ele).attr('data-name')}[#{list_count}]"
                   else
                     name = "#{property.join('_')}[#{list_count}]"
+                  if $(ele).attr("data-name")
+                    ad_name = "#{$(ele).attr('data-name')}_additional[#{list_count}]"
+                  else
+                    ad_name = "#{property.join('_')}additional[#{list_count}]"
                   # TODO figure out a better way to blur and get rid of this
                   blur = undefined
                   # if classes.indexOf("editable") != -1
@@ -407,15 +434,19 @@ window.Prometheus=
                     if not appendData
                       $(ele).html("")
                       success = 1
+                  additional_hidden = Prometheus.getEditableInput(ele, adtl, ad_name, change, blur)
                   input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   li = $(document.createElement('li'))
                   li.attr("class", "#{Prometheus.getClasses(ele)} #{classes}")
                   li.attr("id", "#{Prometheus.getId(ele)}_#{list_count}")
                   li.attr("title", "#{title}")
                   li.append(input)
+                  if additional_property
+                    li.append(additional_hidden)
                   label = $(document.createElement('label'))
                   label.html(obj)
                   li.append(label)
+
                   $(ele).append(li)
                   list_count++
                   $(ele).find("select").hide()
@@ -492,7 +523,8 @@ window.Prometheus=
                     if not appendData
                       $(ele).html("")
                     success = 1
-                  option = "<option title='#{title}' value=#{value}>#{val}</option>"
+
+                  option = "<option title='#{title}' value='#{value}'>#{val}</option>"
                   options += option
               )
               $(ele).append(options)
@@ -516,7 +548,7 @@ window.Prometheus=
               val = val[property[i]]
             if val?
               $(ele).val(val)
-              $("##{$(ele).attr("id")} option:eq('#{val}')").attr("selected", "selected");
+              $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
           catch ex
         )
     )

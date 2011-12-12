@@ -13,7 +13,10 @@ Samples =
       Prometheus.bindValues(selectedState)
     )
     $("#change_label_one").bind("click", ->
-      Prometheus.bindData(labels)
+      Prometheus.bindData(labels, "#labelsContainer")
+    )
+    $("#change_span").bind("click", -> 
+      Prometheus.bindData(labels, "#spanContainer")
     )
     $("#bind_checkboxes").bind("click", ->
       Prometheus.bindData(checkboxes)

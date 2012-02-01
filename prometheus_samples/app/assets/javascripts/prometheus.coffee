@@ -68,7 +68,10 @@ window.Prometheus=
       
       html = ""
       success = 0
+      count = 0
+      evenOdd = ""
       jQuery.each(data, (s, data) ->
+        count++
         undefinedCount = 0
         obj = data
         row_count = $(ele).find("tr").length
@@ -77,17 +80,17 @@ window.Prometheus=
         if property
           for i in [0..property.length - 1]
             obj = obj[property[i]]
-        switch evenOdd
-          when "odd" then evenOdd = "even"
-          when "even" then evenOdd = "odd"
-          else evenOdd = "odd"
-        row = "<tr class='" + evenOdd + "'>"
         headers = $(ele).find("th")
         if not obj
           return null
         if obj.constructor.toString().indexOf("Array") is -1
           obj = [obj]
         jQuery.each(obj, (k, obj) ->
+          switch evenOdd
+            when "odd" then evenOdd = "even"
+            when "even" then evenOdd = "odd"
+            else evenOdd = "even"
+          row = "<tr class='" + evenOdd + "'>"
           jQuery.each(headers, (k, eles) ->
              data_options = []
              try
@@ -95,19 +98,14 @@ window.Prometheus=
                   data_options = ($(eles).attr("data-options").split(" "))
                 catch ex
                   values = eles
-                try
-                  property = $(eles).attr("data-val").split(".")
-                catch ex
-                unless property?
-                  return null
-                nested = obj
-
-                for i in [0..property.length - 1]
-                  nested = nested[property[i]]
-
-                isNull = nested?
-                
-                nested = "" unless isNull
+                text = Prometheus.getTextValue(obj, eles)
+                value = Prometheus.getInputValue(obj, eles)
+                custom_tag = Prometheus.getCustomTag(obj, eles)
+                custom_value = Prometheus.getCustomValue(obj, eles)
+                isNull = text?
+                isNull = value? unless isNull
+                text = "" unless isNull
+                value = "" unless isNull
                 undefinedCount++ unless isNull
                 if $(eles).attr("data-val")
                     input_name = Prometheus.getInputName(eles, property)
@@ -117,12 +115,17 @@ window.Prometheus=
                     change = Prometheus.getOnChange(eles)
                     classes = Prometheus.setColumnClasses(data_options)
                     cls = Prometheus.getClasses(eles)
-                    row += "<td class='#{cls} #{classes}'>"
-                    row += "<label>#{nested}</label>"
-                    if input_type == "select"
-                      row += Prometheus.addTableSelect(input_name, row_count, property, eles, property, data, nested, change, blur)
+
+                    row += "<td class='#{cls} #{classes}'"
+                    if custom_tag and custom_tag.length > 0
+                      row += " #{custom_tag}='#{custom_value}'>"
                     else
-                      row += Prometheus.addTableInput(input_name, input_id, nested, property, change, blur)
+                      row += ">"
+                    row += "<label>#{text}</label>"
+                    if input_type == "select"
+                      row += Prometheus.addTableSelect(input_name, row_count, property, eles, property, data, value, change, blur)
+                    else
+                      row += Prometheus.addTableInput(input_name, input_id, value, property, change, blur)
                 if $(eles).attr("data-href")
                     row += Prometheus.addTableLink(eles)
              catch ex
@@ -148,7 +151,47 @@ window.Prometheus=
     )
     Prometheus.bindEditables()
 
+  getCustomValue: (obj, eles) ->
+    try
+      if $(eles).attr("data-custom_val")
+        property = $(eles).attr("data-custom_val").split(".")
+    catch ex
+    unless property?
+      return null
+    for i in [0..property.length - 1]
+      obj = obj[property[i]]
+      
+  getCustomTag: (obj, eles) ->
+    if $(eles).attr("data-custom")
+      return $(eles).attr("data-custom")
 
+  getTextValue: (nested, eles) ->
+    try
+      if $(eles).attr("data-text")
+        property = $(eles).attr("data-text").split(".")
+      else
+        property = $(eles).attr("data-val").split(".")
+    catch ex
+    unless property?
+      return null
+    for i in [0..property.length - 1]
+      nested = nested[property[i]]
+    
+    
+
+  
+  getInputValue: (nested, eles) ->
+    try
+      if $(eles).attr("data-val")
+        property = $(eles).attr("data-val").split(".")
+      else
+        property = $(eles).attr("data-text").split(".")
+    catch ex
+    unless property?
+      return null
+    for i in [0..property.length - 1]
+      nested = nested[property[i]]
+      
   getOnChange: (eles) ->
     change = ""
     try
@@ -396,17 +439,8 @@ window.Prometheus=
             if $(ele).attr("data-val")
               jQuery.each(data, (i, obj) ->
                 property = $(ele).attr("data-val").split(".")
-                additional_property = []
-                try
-                  additional_property = $(ele).attr("data-additional").split(".")
-                catch ex
                 change = Prometheus.getOnChange(ele)
-                adtl = obj
                 try
-                  try
-                    for i in [0..additional_property.length - 1]
-                        adtl = adtl[additional_property[i]]
-                  catch ex
                   for i in [0..property.length - 1]
                       if $(ele).attr("data-title")
                         if obj[$(ele).attr("data-title")]
@@ -422,10 +456,6 @@ window.Prometheus=
                     name = "#{$(ele).attr('data-name')}[#{list_count}]"
                   else
                     name = "#{property.join('_')}[#{list_count}]"
-                  if $(ele).attr("data-name")
-                    ad_name = "#{$(ele).attr('data-name')}_additional[#{list_count}]"
-                  else
-                    ad_name = "#{property.join('_')}additional[#{list_count}]"
                   # TODO figure out a better way to blur and get rid of this
                   blur = undefined
                   # if classes.indexOf("editable") != -1
@@ -434,19 +464,15 @@ window.Prometheus=
                     if not appendData
                       $(ele).html("")
                       success = 1
-                  additional_hidden = Prometheus.getEditableInput(ele, adtl, ad_name, change, blur)
                   input = Prometheus.getEditableInput(ele, obj, name, change, blur)
                   li = $(document.createElement('li'))
                   li.attr("class", "#{Prometheus.getClasses(ele)} #{classes}")
                   li.attr("id", "#{Prometheus.getId(ele)}_#{list_count}")
                   li.attr("title", "#{title}")
                   li.append(input)
-                  if additional_property
-                    li.append(additional_hidden)
                   label = $(document.createElement('label'))
                   label.html(obj)
                   li.append(label)
-
                   $(ele).append(li)
                   list_count++
                   $(ele).find("select").hide()
@@ -548,7 +574,7 @@ window.Prometheus=
               val = val[property[i]]
             if val?
               $(ele).val(val)
-              $("##{$(ele).attr("id")} option:contains('#{val}')").attr("selected", "selected");
+              $("##{$(ele).attr("id")} option:eq('#{val}')").attr("selected", "selected");
           catch ex
         )
     )

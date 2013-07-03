@@ -1,11 +1,11 @@
 #Prometheus.js
 
-Introducing Prometheus.js. A sensible solution to Templating. 
+Introducing Prometheus.js. A sensible solution to Templating.
 
-###What we are: 
-Prometheus.js is my own attempt at solving that pesky question, in a web 2.0 world, how do we do forms over data. There are dozens of people trying to answer this question, and Prometheus.js is an answer to many of those existing solutions. 
+###What we are:
+Prometheus.js is my own attempt at solving that pesky question, in a web 2.0 world, how do we do forms over data. There are dozens of people trying to answer this question, and Prometheus.js is an answer to many of those existing solutions.
 
-Let me start by saying Prometheus.js is heavily influenced by other templating engines like PURE. Prometheus is a pure javascript and jquery implementation of a templating engine developed in CoffeeScript. A lot of names there right? 
+Let me start by saying Prometheus.js is heavily influenced by other templating engines like PURE. Prometheus is a pure javascript and jquery implementation of a templating engine developed in CoffeeScript. A lot of names there right?
 
 Prometheus provides the ability to provide a javascript method with JSON, and bind every relevant piece of the view to the data contained in there.
 
@@ -19,7 +19,7 @@ I'm not picking on PURE in particular, it's simply the tool I pulled the greates
 
 What I wanted to do with Prometheus was provide a simple solution that would allow designers to continue to design (and modify) pages without having to understand the magic that gets the data on the screen one tiny bit, and minimize the work required to hook the back end data into the front end view.
 
-"But you can always set your page entirely in javascript" you might say. Yes you can, I've done it. What you're doing is tightly coupling your javascript to your view. If an id changes everything breaks, if something gets removed from the view, you have to go remove it from the right place in your javascript or everything breaks, if you add something you have to get it from the database, insert it into your json object, insert it into your javascript then attach it to an element you created on the page. It's bad. I've done it many times, and it becomes a maintenance nightmare. 
+"But you can always set your page entirely in javascript" you might say. Yes you can, I've done it. What you're doing is tightly coupling your javascript to your view. If an id changes everything breaks, if something gets removed from the view, you have to go remove it from the right place in your javascript or everything breaks, if you add something you have to get it from the database, insert it into your json object, insert it into your javascript then attach it to an element you created on the page. It's bad. I've done it many times, and it becomes a maintenance nightmare.
 
 Of course there are other arguments, and Prometheus won't be ideal for every situation. Nothing is.
 
@@ -57,7 +57,7 @@ All of this occurs without writing a single line of custom javascript, or creati
 Each of the three available methods has a slightly different effect, based mostly on the ability to bind select lists with data from a JSON object.
 
 ####Bind Data
-Prometheus.bindData will bind all available data sources (binding a list of states to a drop down for instance) once per session (page load) and then bind all data values on the page. bindData takes two values a data object and optionally a container (in proper jquery selector format), i.e: 
+Prometheus.bindData will bind all available data sources (binding a list of states to a drop down for instance) once per session (page load) and then bind all data values on the page. bindData takes two values a data object and optionally a container (in proper jquery selector format), i.e:
 
 > Prometheus.bindData(userObject, "#usersContainer").
 
@@ -68,14 +68,14 @@ Prometheus.bindValues works exactly like bindData, except instead of binding bot
 
 An optional third parameter can be passed to bindValues which is a bool for appending data. If true is passed as the third option into bind values, data present in the object passed will be appended to existing on page data.
 
-Example: 
+Example:
 
 > Prometheus.bindValues(userObject, "#usersContainer", true)
 
 This would append the users in your user object to the table, leaving any existing users there and creating duplicates where duplicates exist.
 
 ####Bind Sources
-Prometheus.bindSources will rebind sources regardless of whether or not they have been bound during the current page instance. This will wipe all the current source bindings for anything that is rebound (if you do not pass the data for a specific source it will not be wiped, and will remain untouched).  Bind 
+Prometheus.bindSources will rebind sources regardless of whether or not they have been bound during the current page instance. This will wipe all the current source bindings for anything that is rebound (if you do not pass the data for a specific source it will not be wiped, and will remain untouched).  Bind
 
 An optional third parameter can be passed to bindSources which is a bool for appending data. If true is passed as the third option into bind values, data present in the object passed will be appended to existing on page data.
 
@@ -84,7 +84,7 @@ Example:
 > Prometheus.bindSources(userObject, "#usersContainer", true)
 
 ###Disclaimer-Type stuff (oh, and licensing too)
-Prometheus is still in active early development. Everything in this article is true to the best of my knowledge, and if any bugs arise please post an issue for it and I'll do my best to fix it immediately. 
+Prometheus is still in active early development. Everything in this article is true to the best of my knowledge, and if any bugs arise please post an issue for it and I'll do my best to fix it immediately.
 
 Prometheus is licensed under the MIT license.
 
@@ -95,17 +95,18 @@ Contributors are always welcome. To contribute to Prometheus please create a for
 Tests are appreciated, and you'll find the standalone Jasmine testing tool included in this project.
 
 ###TODO -
- 
+
     Add Support For
         Links - Yay! (maybe?)
         iFrames (figure out if this has value, or is even a thing)
         Complex Arrays (Arrays in objects in Arrays in objects)
-    Ideas 
+    Ideas
         Make inputs optional in tables/lists when non-editable
         Add non-json object format support? (Any value?)
     Add Options for
-        Bind with Select 
-            Lists 
+        Bind Images
+        Bind with Select
+            Lists
             Labels
         Bind with bool
             Tables
@@ -117,6 +118,8 @@ Tests are appreciated, and you'll find the standalone Jasmine testing tool inclu
             Lists
             Table Headers
             Label
+        Generic Tags
+          Add catch all for tags not explicitly handled/generic text blocks.
     Convert to JSON
         Convert selects
         Convert tables
@@ -129,10 +132,10 @@ Tests are appreciated, and you'll find the standalone Jasmine testing tool inclu
             Inputs
         Validates Uniqueness => Scope (IE, JSOnified table, or other JSON object)
     Clear Form (clear values from data-val'd inputs)
-    Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)    
-    
+    Reset form (resets form to initial loaded state, resetting all data to the first values/sources set to them)
+
 Cleanup Tasks -
-    
+
     Clean up tables to use all the new editable methods
     Get under proper test coverage
     Remove try catches and replace with logical if checks
@@ -142,7 +145,7 @@ Cleanup Tasks -
     Clean up scopes (dumping Globally scoped objects)
     General performance tuning
 
-Documentation - 
+Documentation -
     Wiki documentation
         bindData
         bindSources
